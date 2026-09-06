@@ -133,6 +133,13 @@ const MUTATIONS = [
     replace: 'for (const item of sel.items) { const kids = [...item.children]; tree.detach(item); kids.forEach((k, i) => { tree.detach(k); tree.attach(k, first.parent, i); }); }',
   },
   {
+    id: 'duplicate-folds',
+    what: 'the fold flag copied onto the duplicate (copies open)',
+    file: 'src/operations/duplicate.ts',
+    find: 'copy.folded = item.folded;',
+    replace: 'copy.folded = false;',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',
