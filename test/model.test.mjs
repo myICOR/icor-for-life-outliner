@@ -253,8 +253,26 @@ test('fold markers: edits per line, the marked lines of a file', async () => {
   assert.equal(withFoldMarker(withFoldMarker('- a')), '- a %% fold %%');
   assert.equal(withoutFoldMarker('- a'), '- a');
   assert.equal(hasFoldMarker('- a %% fold %% '), false, 'the marker sits at the very end');
-  const editor = new FakeEditor(['- a %% fold %%', '  - b', 'para %% fold %%', '- c', '  - d %% fold %%'], []);
-  assert.deepEqual(markedFoldLines(editor), [0, 4]);
+  /* A trailing block id stays last: the editor and the metadata cache
+     recognise `^id` only at the very end of the line (Flint H4). */
+  assert.equal(hasFoldMarker('- a %% fold %% ^abc'), true, 'the marker before a block id');
+  assert.equal(hasFoldMarker('- a ^abc'), false);
+  assert.equal(withFoldMarker('- a ^abc'), '- a %% fold %% ^abc');
+  assert.equal(withFoldMarker('- [ ] a ^abc-1'), '- [ ] a %% fold %% ^abc-1');
+  assert.equal(withFoldMarker('- a %% fold %% ^abc'), '- a %% fold %% ^abc', 'already marked before the id');
+  assert.equal(withoutFoldMarker('- a %% fold %% ^abc'), '- a ^abc');
+  assert.equal(withoutFoldMarker('- a ^abc'), '- a ^abc');
+  assert.deepEqual(foldMarkerEdit('- a ^abc', true), { from: 3, to: 3, insert: ' %% fold %%' }, 'inserted before the id');
+  assert.deepEqual(foldMarkerEdit('- a %% fold %% ^abc', false), { from: 3, to: 14, insert: '' }, 'removed from before the id');
+  assert.equal(foldMarkerEdit('- a %% fold %% ^abc', true), null);
+  assert.equal(foldMarkerEdit('- a ^abc', false), null);
+  assert.equal(hasFoldMarker('- a ^abc %% fold %%'), true, 'the shape an earlier build wrote is still read');
+  assert.equal(withoutFoldMarker('- a ^abc %% fold %%'), '- a ^abc', 'and stripped');
+  assert.equal(withFoldMarker('- a ^abc %% fold %%'), '- a ^abc %% fold %%', 'and not doubled');
+  assert.equal(hasFoldMarker('- a ^abc def'), false, 'a caret that is not a trailing id is content');
+  assert.equal(withFoldMarker('- a ^abc def'), '- a ^abc def %% fold %%');
+  const editor = new FakeEditor(['- a %% fold %%', '  - b', 'para %% fold %%', '- c', '  - d %% fold %%', '- e %% fold %% ^e1', '- [ ] f %% fold %% ^f-1', '- g ^g1'], []);
+  assert.deepEqual(markedFoldLines(editor), [0, 4, 5, 6]);
 });
 
 test('paired: an Editor belongs to a document when the line count and the first line agree', async () => {

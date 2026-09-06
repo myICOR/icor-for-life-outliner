@@ -128,3 +128,61 @@ text
 - x
   - x1
   - ‸a
+
+=== Fold puts the marker before a trailing block id
+--- given markers=on
+- ‸item ^abc
+  - child
+--- when command fold
+--- then consumed
+- ‸item %% fold %% ^abc ⊟
+  - child
+
+=== Unfold removes a marker that sits before a block id
+--- given markers=on
+- ‸item %% fold %% ^abc ⊟
+  - child
+--- when command unfold
+--- then consumed
+- ‸item ^abc
+  - child
+
+=== Fold on a task item with a block id keeps the id last
+--- given markers=on
+- [ ] ‸item ^abc
+  - child
+--- when command fold
+--- then consumed
+- [ ] ‸item %% fold %% ^abc ⊟
+  - child
+
+=== Unfold on a task item with a block id removes the marker only
+--- given markers=on
+- [ ] ‸item %% fold %% ^abc ⊟
+  - child
+--- when command unfold
+--- then consumed
+- [ ] ‸item ^abc
+  - child
+
+=== An item with a block id folded without a marker gets one before the id on the next edit
+--- given markers=on
+- a ^a1 ⊟
+  - a1
+- b‸
+- c
+--- when command move-down
+--- then
+- a %% fold %% ^a1 ⊟
+  - a1
+- c
+- b‸
+
+=== Unfold strips a marker written after the block id by an earlier build
+--- given markers=on
+- ‸item ^abc %% fold %% ⊟
+  - child
+--- when command unfold
+--- then consumed
+- ‸item ^abc
+  - child

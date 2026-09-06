@@ -6,8 +6,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EditorState, Text } from '@codemirror/state';
-import { foldEffect } from '@codemirror/language';
-import { cursorStick, editorInfoField, foldMarkers, ownEditor, ownFoldChange } from './build/cm.mjs';
+import { foldEffect, foldService } from '@codemirror/language';
+import { cursorStick, editorInfoField, foldMarkers, foldsFromMarkers, ownEditor, ownFoldChange } from './build/cm.mjs';
 import { DEFAULT_SETTINGS } from './build/pure.mjs';
 
 function editorOver(text) {
@@ -22,6 +22,21 @@ function host(overrides = {}) {
 function stateWith(doc, editor, extensions) {
   return EditorState.create({ doc, extensions: [editorInfoField.init(() => ({ editor })), ...extensions] });
 }
+
+/* A stand-in for Obsidian's "Fold indent" service: a line folds from its
+   end to the end of the run of deeper-indented lines under it. */
+const indentFolding = foldService.of((state, from, to) => {
+  const line = state.doc.lineAt(from);
+  const depth = line.text.search(/\S/);
+  let end = line.number;
+  for (let n = line.number + 1; n <= state.doc.lines; n++) {
+    const next = state.doc.line(n);
+    const d = next.text.search(/\S/);
+    if (d === -1 || d > depth) end = n;
+    else break;
+  }
+  return end > line.number ? { from: to, to: state.doc.line(end).to } : null;
+});
 
 const DOC = '- a\n  - b\n- c';
 
@@ -66,4 +81,28 @@ test('cursor filter: a set transaction (file load, syntax reset) is the editor p
   const s = stateWith(DOC, editorOver(DOC), [cursorStick(host())]);
   const tr = s.update({ selection: { anchor: 0 }, userEvent: 'set' });
   assert.equal(tr.state.selection.main.head, 0);
+});
+
+test('fold-marker filter: a gutter fold on an item with a block id puts the marker before the id', () => {
+  const doc = '- a ^abc\n  - b\n- c';
+  const s = stateWith(doc, editorOver(doc), [foldMarkers(host({ foldMarkers: true }))]);
+  const tr = s.update({ effects: foldEffect.of({ from: 8, to: 14 }) });
+  assert.equal(tr.state.doc.toString(), '- a %% fold %% ^abc\n  - b\n- c');
+});
+
+test('restore on open: a marker before a block id folds the item, and a block id alone does not (the control case)', () => {
+  const marked = '- a %% fold %% ^abc\n  - b\n- [ ] c %% fold %% ^c-1\n  - d\n- e';
+  const s = stateWith(marked, editorOver(marked), [indentFolding]);
+  assert.deepEqual(
+    foldsFromMarkers({ state: s }).map((e) => e.value),
+    [
+      { from: s.doc.line(1).to, to: s.doc.line(2).to },
+      { from: s.doc.line(3).to, to: s.doc.line(4).to },
+    ],
+  );
+  const plain = '- a ^abc\n  - b';
+  assert.deepEqual(foldsFromMarkers({ state: stateWith(plain, editorOver(plain), [indentFolding]) }), []);
+  const oldShape = '- a ^abc %% fold %%\n  - b';
+  const o = stateWith(oldShape, editorOver(oldShape), [indentFolding]);
+  assert.equal(foldsFromMarkers({ state: o }).length, 1, 'the shape an earlier build wrote still restores');
 });

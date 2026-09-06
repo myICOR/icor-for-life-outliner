@@ -189,6 +189,13 @@ const MUTATIONS = [
     replace: 'return text;',
   },
   {
+    id: 'fold-marker-before-id',
+    what: 'the trailing block id kept last (the marker goes after the id and kills it)',
+    file: 'src/operations/foldMarker.ts',
+    find: "const id = TRAILING_BLOCK_ID.exec(text)?.[1] ?? '';",
+    replace: "const id = '';",
+  },
+  {
     id: 'drop-child-place',
     what: 'a drop into an item as its first child (lands after it instead)',
     file: 'src/operations/drop.ts',
