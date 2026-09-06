@@ -154,6 +154,20 @@ const MUTATIONS = [
     replace: "item.checkbox = '[x]';",
   },
   {
+    id: 'move-to-last-child',
+    what: 'move to attaching as the LAST child (first child)',
+    file: 'src/moveTo.ts',
+    find: 'tree.attach(item, parent, parent ? parent.children.length : tree.items.length);',
+    replace: 'tree.attach(item, parent, 0);',
+  },
+  {
+    id: 'move-to-cross-offset',
+    what: 'the line shift of the arrival span after a departure above it',
+    file: 'src/moveTo.ts',
+    find: 'const targetOffset = sourceFirst ? departureDelta : 0;',
+    replace: 'const targetOffset = 0;',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',

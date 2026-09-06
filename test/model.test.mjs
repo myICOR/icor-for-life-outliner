@@ -200,3 +200,21 @@ test('settings: defaults, normalisation, key gates, one row per key', () => {
   assert.equal(new Set(settingKeys()).size, SETTING_ROWS.length);
   for (const row of SETTING_ROWS) assert.ok(row.name === row.name.charAt(0).toUpperCase() + row.name.slice(1), `${row.name} starts with a capital`);
 });
+
+test('move-to targets: headings and items in order, the moved subtree left out', async () => {
+  const { moveTargets, headingOf } = await import('./build/pure.mjs');
+  assert.deepEqual(headingOf('## Two words '), { level: 2, text: 'Two words' });
+  assert.equal(headingOf('#no'), null);
+  assert.equal(headingOf('####### seven'), null);
+  const doc = ['# One', '- a', '  - a1', '- b', '', '## Two', 'text', '- [x] x', '```', '# fenced', '- fenced', '```'];
+  const editor = new FakeEditor(doc, [cursor(1, 2)]);
+  editor.nodes.set(9, ['HyperMD-codeblock']);
+  editor.nodes.set(10, ['HyperMD-codeblock']);
+  const targets = moveTargets(editor, cursor(1, 2));
+  assert.deepEqual(targets.map((t) => [t.line, t.kind, t.text, t.depth]), [
+    [0, 'heading', 'One', 1],
+    [3, 'item', 'b', 1],
+    [5, 'heading', 'Two', 2],
+    [7, 'item', '[x] x', 1],
+  ]);
+});

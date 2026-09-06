@@ -1,0 +1,361 @@
+=== Move to an item in the same list makes the item its last child
+--- given
+- a
+  - a1
+- b‸
+  - b1
+- c
+--- when move-to 0
+--- then
+- a
+  - a1
+  - ‸b
+    - b1
+- c
+
+=== Move to a later item in the same list
+--- given
+- a‸
+- b
+  - b1
+--- when move-to 1
+--- then
+- b
+  - b1
+  - ‸a
+
+=== Move to a target inside the moved subtree is refused
+--- given
+- a‸
+  - a1
+- b
+--- when move-to 1
+--- then consumed
+- a‸
+  - a1
+- b
+
+=== Move to the item itself is refused
+--- given
+- a‸
+- b
+--- when move-to 0
+--- then consumed
+- a‸
+- b
+
+=== Move to a folded target unfolds it
+--- given
+- a ⊟
+  - a1
+- b‸
+--- when move-to 0
+--- then
+- a
+  - a1
+  - ‸b
+
+=== Move to keeps the moved item's own fold
+--- given
+- a
+- b‸ ⊟
+  - b1
+--- when move-to 0
+--- then
+- a
+  - ‸b ⊟
+    - b1
+
+=== Move to an item in another list carries the subtree across
+--- given
+- a
+- b‸
+  - b1
+- c
+
+paragraph
+
+- x
+- y
+--- when move-to 8
+--- then
+- a
+- c
+
+paragraph
+
+- x
+- y
+  - ‸b
+    - b1
+
+=== Move to an item in an earlier list shifts the later lines up
+--- given
+- x
+- y
+
+text
+
+- a‸
+  - a1
+- b
+--- when move-to 0
+--- then
+- x
+  - ‸a
+    - a1
+- y
+
+text
+
+- b
+
+=== Move to another list takes that list's indent step
+--- given
+- a‸
+- b
+
+text
+
+- x
+    - x1
+--- when move-to 5
+--- then
+- b
+
+text
+
+- x
+    - x1
+    - ‸a
+
+=== Move to another list keeps folds on both sides
+--- given
+- a‸ ⊟
+  - a1
+- b ⊟
+  - b1
+
+text
+
+- x ⊟
+  - x1
+- y
+--- when move-to 9
+--- then
+- b ⊟
+  - b1
+
+text
+
+- x ⊟
+  - x1
+- y
+  - ‸a ⊟
+    - a1
+
+=== Move to a heading appends to the last list of its section
+--- given
+# One
+- a‸
+- b
+
+# Two
+- x
+  - x1
+- y
+
+# Three
+--- when move-to 4
+--- then
+# One
+- b
+
+# Two
+- x
+  - x1
+- y
+- ‸a
+
+# Three
+
+=== Move to a heading whose section has no list starts one after the section's last line
+--- given
+# One
+- a‸
+- b
+
+# Two
+some text
+
+# Three
+--- when move-to 4
+--- then
+# One
+- b
+
+# Two
+some text
+
+- ‸a
+
+# Three
+
+=== Move to an empty heading section starts the list right under the heading
+--- given
+# One
+
+# Two
+- a‸
+- b
+--- when move-to 0
+--- then
+# One
+- ‸a
+
+# Two
+- b
+
+=== Move to a heading section that ends at the end of the file
+--- given
+- a‸
+  - a1
+- b
+
+# Notes
+--- when move-to 4
+--- then
+- b
+
+# Notes
+- ‸a
+  - a1
+
+=== Move to the heading above the item's own list appends to that list
+--- given
+# One
+- a‸
+- b
+- c
+--- when move-to 0
+--- then
+# One
+- b
+- c
+- ‸a
+
+=== Move to a heading with a nested item flattens it to the top level
+--- given
+- p
+  - q‸
+    - q1
+
+# Two
+--- when move-to 4
+--- then
+- p
+
+# Two
+- ‸q
+  - q1
+
+=== Move to an item in another list renumbers both lists
+--- given
+1. a‸
+2. b
+
+text
+
+1. x
+--- when move-to 5
+--- then
+1. b
+
+text
+
+1. x
+  1. ‸a
+
+=== Move to with whole items selected moves the run and keeps it selected
+--- given
+- a
+⟨- b
+- c⟩
+- d
+
+text
+
+- x
+--- when move-to 7
+--- then
+- a
+- d
+
+text
+
+- x
+⟨  - b
+  - c⟩
+
+=== Move to a line that is neither a heading nor an item is refused
+--- given
+- a‸
+
+paragraph
+--- when move-to 2
+--- then consumed
+- a‸
+
+paragraph
+
+=== Move to a heading inside a code fence is refused
+--- given
+- a‸
+- b
+```
+# not a heading
+```
+--- nodes 3 HyperMD-codeblock_HyperMD-codeblock-bg
+--- when move-to 3
+--- then consumed
+- a‸
+- b
+```
+# not a heading
+```
+
+=== Move to with the cursor outside a list does nothing
+--- given
+para‸graph
+- a
+--- when move-to 1
+--- then passthrough
+para‸graph
+- a
+
+=== Move to another list from the only item leaves an empty line behind
+--- given
+- a‸
+
+text
+
+- x
+--- when move-to 4
+--- then
+⏎
+
+text
+
+- x
+  - ‸a
+
+=== Move to an item across a blank line stays inside the one loose list
+--- given
+- a‸
+
+- x
+--- when move-to 2
+--- then
+- x
+  - ‸a
+⏎

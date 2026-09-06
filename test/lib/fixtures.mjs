@@ -6,6 +6,7 @@
  *   --- nodes <line> <node name> [<node name> ...]        (optional, repeatable)
  *   --- when key <Tab|Shift-Tab|Enter|Mod-Shift-Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
  *   --- when command <indent|outdent|move-up|move-down|fold|unfold|insert-above|delete-with-subtree|duplicate|expand-all|collapse-all|toggle-done>
+ *   --- when move-to <zero-based line of the target heading or item>
  *   --- then [passthrough|consumed]
  *   lines of the expected document, with markers
  *
@@ -175,6 +176,8 @@ export function runCase(pure, c) {
     const action = KEY_ACTIONS[c.when.arg];
     if (!action) return `unknown key ${c.when.arg}`;
     outcome = pure.runKey(editor, settings, action);
+  } else if (c.when.verb === 'move-to') {
+    outcome = pure.runMoveTo(editor, settings, Number(c.when.arg));
   } else if (c.when.verb === 'command') {
     if (!COMMANDS.has(c.when.arg)) return `unknown command ${c.when.arg}`;
     outcome = pure.runAction(editor, settings, c.when.arg);
@@ -186,7 +189,7 @@ export function runCase(pure, c) {
   const problems = [];
   if (outcome.consume !== wantConsume) problems.push(`expected the key to be ${wantConsume ? 'consumed' : 'passed through'}, it was ${outcome.consume ? 'consumed' : 'passed through'} (${outcome.reason})`);
   const actual = renderState(editor.lines, editor.listSelections(), editor.foldedLines());
-  const expected = c.then.join('\n');
+  const expected = c.then.map((l) => (l === EMPTY ? '' : l)).join('\n');
   if (actual !== expected) problems.push(`state differs\n--- expected\n${expected}\n--- actual\n${actual}`);
   if (editor.replaceCalls > 1) problems.push(`${editor.replaceCalls} replaceRange calls; the engine promises at most one`);
   return problems.length > 0 ? problems.join('\n') : null;

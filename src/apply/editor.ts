@@ -4,6 +4,7 @@
  * `{ line, ch }`. */
 import type { LineSource, Position, SelectionRange } from '../model';
 import type { HiddenRange } from '../operations';
+import type { LineChange } from './diff';
 
 export interface OutlinerEditor extends LineSource {
   listSelections(): SelectionRange[];
@@ -11,6 +12,11 @@ export interface OutlinerEditor extends LineSource {
   /* Replace [from, to) with `text`, which may span lines. The engine issues
      at most one of these per operation. */
   replaceRange(text: string, from: Position, to: Position): void;
+  /* Several replacements that do not overlap, as ONE transaction and one
+     undo step; every position is in the document before any of them. The
+     engine uses this only when a change has two spans (move to another
+     list in the file). */
+  applyChanges(changes: readonly LineChange[]): void;
   /* Lines that start a fold (the folded item's own line). */
   foldedLines(): number[];
   /* The lines those folds hide. */

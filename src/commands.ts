@@ -2,14 +2,16 @@
  * Lucide icon so it can sit on the mobile toolbar. A command is offered
  * only when the cursor is in a list; running one outside does nothing. */
 import { EditorView } from '@codemirror/view';
-import { MarkdownView } from 'obsidian';
+import { MarkdownView, Notice } from 'obsidian';
 import type { Editor, MarkdownFileInfo, Plugin } from 'obsidian';
 import { runAction } from './actions';
 import type { ActionId } from './actions';
 import { CmEditorAdapter } from './editor/adapter';
 import type { EditorHost } from './editor/host';
 import { viewFor } from './editor/registry';
+import { MoveToModal } from './editor/moveToModal';
 import { findListBounds } from './model';
+import { moveTargets, runMoveTo } from './moveTo';
 
 export interface CommandSpec {
   id: string;
@@ -33,6 +35,14 @@ export const COMMANDS: readonly CommandSpec[] = [
   { id: 'toggle-done', name: 'Toggle done on the list item', icon: 'check', action: 'toggle-done' },
 ];
 
+/* The one command with a picker: the targets come from the pure layer, the
+   modal shows them, and the move runs only if the document is still the
+   one the picker was opened on. */
+export const MOVE_TO_COMMAND = { id: 'move-to', name: 'Move the list item to...', icon: 'corner-down-right' } as const;
+
+const NOTHING_TO_MOVE_TO = 'No heading or list item to move to in this file.';
+const CHANGED_MEANWHILE = 'The note changed while the picker was open; nothing was moved.';
+
 function resolveView(editor: Editor, ctx: MarkdownView | MarkdownFileInfo): EditorView | null {
   return viewFor(editor) ?? (ctx instanceof MarkdownView ? EditorView.findFromDOM(ctx.contentEl) : null);
 }
@@ -54,4 +64,33 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
       },
     });
   }
+
+  plugin.addCommand({
+    id: MOVE_TO_COMMAND.id,
+    name: MOVE_TO_COMMAND.name,
+    icon: MOVE_TO_COMMAND.icon,
+    editorCheckCallback: (checking, editor, ctx) => {
+      const view = resolveView(editor, ctx);
+      if (!view) return false;
+      const adapter = new CmEditorAdapter(editor, view, () => host.foldUnavailable());
+      if (checking) return findListBounds(adapter, editor.getCursor().line) !== null;
+      const selection = adapter.listSelections()[0];
+      if (!selection) return true;
+      const targets = moveTargets(adapter, selection);
+      if (targets.length === 0) {
+        new Notice(NOTHING_TO_MOVE_TO);
+        return true;
+      }
+      const doc = view.state.doc;
+      new MoveToModal(plugin.app, targets, (target) => {
+        if (!view.state.doc.eq(doc)) {
+          new Notice(CHANGED_MEANWHILE);
+          return;
+        }
+        const outcome = runMoveTo(adapter, host.settings, target.line);
+        host.log(`${MOVE_TO_COMMAND.id}: ${outcome.reason}`);
+      }).open();
+      return true;
+    },
+  });
 }

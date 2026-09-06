@@ -4,7 +4,7 @@
  * can pin "one edit per operation", and keeps folds by their root line the
  * way the real editor's fold state would survive a replacement: a fold
  * whose root line is rewritten is lost, folds below the edit shift with it. */
-import type { OutlinerEditor } from '../src/apply';
+import type { LineChange, OutlinerEditor } from '../src/apply';
 import { leadingWhitespace, lineKind } from '../src/model';
 import type { Position, SelectionRange } from '../src/model';
 import type { HiddenRange } from '../src/operations';
@@ -45,10 +45,27 @@ export class FakeEditor implements OutlinerEditor {
   }
 
   replaceRange(text: string, from: Position, to: Position): void {
+    this.replaceCalls++;
+    this.splice(text, from, to);
+  }
+
+  /* Later spans first, so every position stays valid; one call counted,
+     the way one transaction is one undo step. */
+  applyChanges(changes: readonly LineChange[]): void {
+    const ordered = [...changes].sort((a, b) => b.from.line - a.from.line || b.from.ch - a.from.ch);
+    for (let i = 1; i < ordered.length; i++) {
+      const later = ordered[i - 1] as LineChange;
+      const earlier = ordered[i] as LineChange;
+      if (earlier.to.line > later.from.line || (earlier.to.line === later.from.line && earlier.to.ch > later.from.ch)) throw new RangeError('applyChanges with overlapping spans');
+    }
+    this.replaceCalls++;
+    for (const c of ordered) this.splice(c.text, c.from, c.to);
+  }
+
+  private splice(text: string, from: Position, to: Position): void {
     this.check(from);
     this.check(to);
     if (from.line > to.line || (from.line === to.line && from.ch > to.ch)) throw new RangeError('replaceRange with from after to');
-    this.replaceCalls++;
     const head = this.getLine(from.line).slice(0, from.ch);
     const tail = this.getLine(to.line).slice(to.ch);
     const inserted = (head + text + tail).split('\n');

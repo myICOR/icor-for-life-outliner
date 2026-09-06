@@ -5,6 +5,7 @@
 import { printTree, samePosition } from '../model';
 import type { ListTree, SelectionRange } from '../model';
 import { computeChange } from './diff';
+import type { LineChange } from './diff';
 import type { OutlinerEditor } from './editor';
 
 export interface ApplyOutcome {
@@ -16,12 +17,20 @@ export interface ApplyOutcome {
  * fold what the tree says is folded and the editor lost in the replacement,
  * unfold what an operation opened (a target that had to be unfolded so the
  * moved item stays visible). Lines that are not items are never touched. */
-function reconcileFolds(editor: OutlinerEditor, tree: ListTree): void {
+export function reconcileFolds(editor: OutlinerEditor, tree: ListTree, lineOffset = 0): void {
   const folded = new Set(editor.foldedLines());
   for (const item of tree.itemsInOrder()) {
-    const line = tree.lineOf(item);
+    const line = tree.lineOf(item) + lineOffset;
     if (item.folded && !folded.has(line)) editor.fold(line);
     else if (!item.folded && folded.has(line)) editor.unfold(line);
+  }
+}
+
+/* Folds whose root line is about to be rewritten are lifted first, so the
+ * editor never keeps a fold on a line that no longer exists. */
+export function unfoldSpan(editor: OutlinerEditor, change: LineChange): void {
+  for (const line of editor.foldedLines()) {
+    if (line >= change.oldStart && line <= change.oldEnd) editor.unfold(line);
   }
 }
 
@@ -29,9 +38,7 @@ export function applyTree(editor: OutlinerEditor, tree: ListTree, oldLines: read
   const newLines = printTree(tree);
   const change = computeChange(oldLines, newLines, tree.startLine);
   if (change) {
-    for (const line of editor.foldedLines()) {
-      if (line >= change.oldStart && line <= change.oldEnd) editor.unfold(line);
-    }
+    unfoldSpan(editor, change);
     editor.replaceRange(change.text, change.from, change.to);
   }
   reconcileFolds(editor, tree);

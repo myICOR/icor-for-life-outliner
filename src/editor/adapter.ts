@@ -8,7 +8,7 @@ import { foldEffect, foldable, foldedRanges, getIndentUnit, indentString, unfold
 import type { StateEffect } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import type { Editor } from 'obsidian';
-import type { OutlinerEditor } from '../apply';
+import type { LineChange, OutlinerEditor } from '../apply';
 import type { Position, SelectionRange } from '../model';
 import type { HiddenRange } from '../operations';
 import { nodeNamesOnLine } from './syntax';
@@ -40,6 +40,10 @@ export class CmEditorAdapter implements OutlinerEditor {
 
   replaceRange(text: string, from: Position, to: Position): void {
     this.editor.replaceRange(text, from, to);
+  }
+
+  applyChanges(changes: readonly LineChange[]): void {
+    this.editor.transaction({ changes: changes.map((c) => ({ from: c.from, to: c.to, text: c.text })) });
   }
 
   foldedLines(): number[] {
