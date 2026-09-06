@@ -8,7 +8,7 @@ import {
   computeChange,
   keepCursorInContent, keepCursorOutsideFolded, contentStartOfLine,
   classifyNodeNames,
-  DEFAULT_SETTINGS, normaliseSettings, keyEnabled, SETTING_ROWS, settingKeys,
+  DEFAULT_SETTINGS, normaliseSettings, keyEnabled, SETTING_ROWS, settingKeys, rowsIn, groupsShown, SETTING_GROUPS, ALL_COMMANDS, EDITING_KEYS,
   FakeEditor,
 } from './build/pure.mjs';
 
@@ -221,6 +221,43 @@ test('settings: defaults, normalisation, key gates, one row per key', () => {
   assert.deepEqual([...settingKeys()].sort(), Object.keys(DEFAULT_SETTINGS).sort());
   assert.equal(new Set(settingKeys()).size, SETTING_ROWS.length);
   for (const row of SETTING_ROWS) assert.ok(row.name === row.name.charAt(0).toUpperCase() + row.name.slice(1), `${row.name} starts with a capital`);
+});
+
+test('settings: the two read-only groups list every command and every editing key, for either platform', () => {
+  assert.deepEqual(SETTING_GROUPS, ['Cursor', 'Keys', 'Mouse', 'Folds', 'Keyboard shortcuts', 'Editing keys', 'Advanced']);
+  assert.deepEqual(groupsShown(true), SETTING_GROUPS);
+  assert.deepEqual(groupsShown(false), SETTING_GROUPS.filter((g) => g !== 'Mouse'));
+  for (const mac of [true, false]) {
+    const shortcuts = rowsIn('Keyboard shortcuts', true, mac);
+    assert.ok(shortcuts.every((r) => r.type === 'info'), 'no control in the shortcuts group');
+    assert.equal(shortcuts.length, 1 + ALL_COMMANDS.length);
+    assert.match(shortcuts[0].desc, /Settings, Hotkeys; search for ICOR for Life - Outliner\./);
+    assert.deepEqual(shortcuts.slice(1).map((r) => r.name), ALL_COMMANDS.map((c) => c.name));
+    for (const [i, c] of ALL_COMMANDS.entries()) {
+      const row = shortcuts[i + 1];
+      assert.ok(row.desc.length > 0, `${c.id} shows no chord`);
+      if (['fold', 'unfold', 'collapse-all', 'expand-all'].includes(c.id)) assert.match(row.desc, /"Fold indent"/, `${c.id} names the fold indent requirement`);
+      if (c.handBack) assert.match(row.desc, /Outside a list/, `${c.id} says what the editor keeps`);
+      else assert.doesNotMatch(row.desc, /Outside a list/);
+    }
+    assert.match(shortcuts[1].desc, mac ? /^⌘ ⌥ ↑ / : /^Ctrl \+ Alt \+ ↑ /);
+    const keys = rowsIn('Editing keys', true, mac);
+    assert.ok(keys.every((r) => r.type === 'info'));
+    /* Mod-Backspace is a macOS key; elsewhere its row is not shown. */
+    assert.equal(keys.length, 1 + EDITING_KEYS.length - (mac ? 0 : 1));
+    assert.match(keys[0].desc, /switched by the toggles above/);
+    const settingNames = new Set(SETTING_ROWS.map((r) => r.name));
+    for (const k of EDITING_KEYS) assert.ok(settingNames.has(k.setting), `${k.setting} is not a setting`);
+    for (const row of keys.slice(1)) assert.match(row.desc, /Switched by "/);
+    const modBackspace = keys.find((r) => r.desc.startsWith('Deletes back to the content start'));
+    assert.equal(modBackspace?.name, mac ? '⌘ Backspace' : undefined);
+    for (const row of keys) assert.ok(row.name.length > 0, 'a row with no key on this platform is not shown');
+    const arrowLeft = keys.find((r) => r.desc.startsWith('At the content start, jumps'));
+    assert.equal(arrowLeft.name, mac ? '←' : '←, Ctrl + ←');
+  }
+  for (const row of [...rowsIn('Keyboard shortcuts', true, true), ...rowsIn('Editing keys', true, true)]) {
+    assert.ok(row.name === row.name.charAt(0).toUpperCase() + row.name.slice(1), `${row.name} starts with a capital`);
+  }
 });
 
 test('move-to targets: headings and items in order, the moved subtree left out', async () => {

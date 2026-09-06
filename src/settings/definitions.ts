@@ -1,9 +1,13 @@
 /* The settings page as data. The settings tab's `getSettingDefinitions()`
  * draws from this table, and the tests read it to prove every setting has
- * exactly one row. */
+ * exactly one row. Two groups carry no control at all: the default
+ * hotkeys of the thirteen commands, and the editing keys that are not
+ * commands; both are read-only rows built from src/commandTable.ts, so
+ * the page never drifts from what the plugin binds. */
+import { ALL_COMMANDS, EDITING_KEYS, HAND_BACK_TEXT, describeHotkey, editingKeyLabel } from '../commandTable';
 import type { OutlinerSettings } from './model';
 
-export type SettingGroup = 'Cursor' | 'Keys' | 'Mouse' | 'Folds' | 'Advanced';
+export type SettingGroup = 'Cursor' | 'Keys' | 'Mouse' | 'Folds' | 'Keyboard shortcuts' | 'Editing keys' | 'Advanced';
 
 export interface ToggleRow {
   type: 'toggle';
@@ -24,11 +28,22 @@ export interface DropdownRow {
   options: Record<string, string>;
 }
 
-export type SettingRow = ToggleRow | DropdownRow;
+/* A row with a name and a description and no control: Obsidian's
+   SettingDefinitionEmpty. It changes nothing and is indexed for settings
+   search like any other row. */
+export interface InfoRow {
+  type: 'info';
+  group: SettingGroup;
+  name: string;
+  desc: string;
+}
 
-export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Mouse', 'Folds', 'Advanced'];
+export type ControlRow = ToggleRow | DropdownRow;
+export type SettingRow = ControlRow | InfoRow;
 
-export const SETTING_ROWS: readonly SettingRow[] = [
+export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Mouse', 'Folds', 'Keyboard shortcuts', 'Editing keys', 'Advanced'];
+
+export const SETTING_ROWS: readonly ControlRow[] = [
   {
     type: 'dropdown',
     group: 'Cursor',
@@ -82,7 +97,7 @@ export const SETTING_ROWS: readonly SettingRow[] = [
     group: 'Folds',
     key: 'foldMarkers',
     name: 'Remember folds in the file',
-    desc: 'Folding an item writes a %% fold %% comment at the end of its line and unfolding removes it, so folds survive a reinstall, a new device and any sync tool. It is an Obsidian comment: hidden in reading view, shown faint at the line end in Live Preview and source mode. With this on, opening a note also writes markers for folds Obsidian already remembers, and so does the next edit in a list, so the file catches up. Off by default because every fold then changes the file, which shows up as an edit in a vault under version control. Markers already in a file are honoured on open either way.',
+    desc: 'Folding an item writes a %% fold %% comment at the end of its line and unfolding removes it, so folds survive a reinstall, a new device and any sync tool. It is an Obsidian comment: hidden in reading view, shown faint at the line end in Live Preview and source mode. With this on, opening a note also writes markers for folds Obsidian already remembers, and so does the next edit in a list, so the file catches up. Off by default because every fold then changes the file, which shows up as an edit in a vault under version control. Markers already in a file are honoured on open either way. Folding itself needs "Fold indent" on under Settings, Editor.',
   },
   {
     type: 'toggle',
@@ -93,12 +108,42 @@ export const SETTING_ROWS: readonly SettingRow[] = [
   },
 ];
 
+const CHANGE_THEM = 'Change any of these under Settings, Hotkeys; search for ICOR for Life - Outliner.';
+const NEEDS_FOLD_INDENT = 'Needs "Fold indent" on under Settings, Editor.';
+const FOLD_COMMANDS = new Set(['fold', 'unfold', 'collapse-all', 'expand-all']);
+const NOT_COMMANDS = 'These are the outliner\'s editing behaviour inside a list, switched by the toggles above rather than rebound. They are not commands, so they have no entry under Settings, Hotkeys.';
+
+/* The read-only rows, built for the platform the page is shown on. */
+export function infoRows(group: SettingGroup, mac: boolean): InfoRow[] {
+  if (group === 'Keyboard shortcuts') {
+    return [
+      { type: 'info', group, name: 'Where to change them', desc: CHANGE_THEM },
+      ...ALL_COMMANDS.map((c): InfoRow => {
+        const parts = [describeHotkey(c.hotkey, mac)];
+        if (FOLD_COMMANDS.has(c.id)) parts.push(NEEDS_FOLD_INDENT);
+        if (c.handBack) parts.push(HAND_BACK_TEXT[c.handBack]);
+        return { type: 'info', group, name: c.name, desc: parts.join(' ') };
+      }),
+    ];
+  }
+  if (group === 'Editing keys') {
+    return [
+      { type: 'info', group, name: 'Not rebound here', desc: NOT_COMMANDS },
+      /* A key that does not exist on this platform (Mod-Backspace is
+         macOS only) has no row. */
+      ...EDITING_KEYS.map((k): InfoRow => ({ type: 'info', group, name: editingKeyLabel(k, mac), desc: `${k.does} Switched by "${k.setting}".` })).filter((r) => r.name.length > 0),
+    ];
+  }
+  return [];
+}
+
 export function settingKeys(): (keyof OutlinerSettings)[] {
   return SETTING_ROWS.map((r) => r.key);
 }
 
-export function rowsIn(group: SettingGroup, desktop = true): SettingRow[] {
-  return SETTING_ROWS.filter((r) => r.group === group && (desktop || !(r.type === 'toggle' && r.desktopOnly)));
+export function rowsIn(group: SettingGroup, desktop = true, mac = false): SettingRow[] {
+  const controls = SETTING_ROWS.filter((r) => r.group === group && (desktop || !(r.type === 'toggle' && r.desktopOnly)));
+  return [...controls, ...infoRows(group, mac)];
 }
 
 /* Groups with at least one row on this platform. */

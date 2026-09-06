@@ -26,13 +26,18 @@ export class OutlinerSettingsTab extends PluginSettingTab {
       type: 'group' as const,
       heading: group,
       cls: GROUP_CLASS,
-      items: rowsIn(group, Platform.isDesktop).map((row) => this.toItem(row)),
+      items: rowsIn(group, Platform.isDesktop, Platform.isMacOS).map((row) => this.toItem(row)),
     }));
   }
 
   private toItem(row: SettingRow): GroupItem {
     if (row.type === 'toggle') return { name: row.name, desc: row.desc, control: { type: 'toggle', key: row.key } };
-    return { name: row.name, desc: row.desc, control: { type: 'dropdown', key: row.key, options: row.options } };
+    if (row.type === 'dropdown') return { name: row.name, desc: row.desc, control: { type: 'dropdown', key: row.key, options: row.options } };
+    /* A definition with no control, action or render is Obsidian's
+       SettingDefinitionEmpty (obsidian.d.ts, @since 1.13.0): the app draws
+       the name and the description and nothing else, and indexes the row
+       for settings search like any other. */
+    return { name: row.name, desc: row.desc };
   }
 
   override getControlValue(key: string): unknown {
