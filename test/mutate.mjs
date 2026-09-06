@@ -147,6 +147,13 @@ const MUTATIONS = [
     replace: '  if (item.parent === null) for (const child of item.children) setFolds(child, folded);',
   },
   {
+    id: 'toggle-done-swap',
+    what: 'the checked box turning unchecked (stays checked)',
+    file: 'src/operations/toggleDone.ts',
+    find: "item.checkbox = item.checkbox === '[ ]' ? '[x]' : '[ ]';",
+    replace: "item.checkbox = '[x]';",
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',
