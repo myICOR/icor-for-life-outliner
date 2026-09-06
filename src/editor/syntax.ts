@@ -2,7 +2,11 @@
  * The parse is nudged up to the end of the line with a small time budget
  * and falls back to whatever the tree already holds; an unparsed line comes
  * back empty and reads as "unknown", which leaves the decision to the text
- * parser. */
+ * parser. The parse is incremental and kept by the editor, so a caller
+ * that walks every line of a file (the move-to picker) pays for one parse
+ * plus one iterate per line, not one parse per line; a single up-front
+ * `ensureSyntaxTree` to the end of the document would only change the
+ * shape of the time budget. Left as is until a long note is measured. */
 import { ensureSyntaxTree, syntaxTree } from '@codemirror/language';
 import type { EditorState } from '@codemirror/state';
 

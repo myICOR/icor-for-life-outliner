@@ -185,8 +185,8 @@ const MUTATIONS = [
     id: 'fold-marker-strip',
     what: 'the marker removed for an open item (never removed)',
     file: 'src/operations/foldMarker.ts',
-    find: 'return hasFoldMarker(text) ? text.slice(0, -FOLD_MARKER.length) : text;',
-    replace: 'return text;',
+    find: "  if (text.endsWith(FOLD_MARKER)) return text.slice(0, -FOLD_MARKER.length);\n  const { body, id } = splitBlockId(text);\n  return body.endsWith(FOLD_MARKER) ? body.slice(0, -FOLD_MARKER.length) + id : text;",
+    replace: '  return text;',
   },
   {
     id: 'fold-marker-before-id',
