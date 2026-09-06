@@ -174,10 +174,14 @@ without one, so the file catches up.
 ## Two outliners at once
 
 If another plugin in your vault also binds Tab and Enter inside lists,
-disable one of them. Both bind at the highest precedence and whichever
-loaded first wins, without a message. Custom hotkeys set on that other
-plugin's commands do not carry over; set them again on the commands
-above.
+disable one of them. Both bind at a high precedence and whichever loaded
+first wins, without a message. Custom hotkeys set on that other plugin's
+commands do not carry over; set them again on the commands above.
+
+This plugin's Tab, Shift-Tab, Enter and Mod-Shift-Enter sit above the
+editor's own list handling and below the Live Preview image editor, so
+with an image selected inside an item, Enter still opens the image's
+link editor and Tab still edits its alias.
 
 ## Whitespace is never normalised
 

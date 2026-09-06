@@ -40,7 +40,7 @@ function handler(host: EditorHost, action: KeyAction, treeFirst: boolean): Comma
 
 export function outlinerKeymaps(host: EditorHost): Extension[] {
   return [
-    Prec.highest(
+    Prec.high(
       keymap.of([
         { key: 'Tab', run: handler(host, 'indent', true) },
         { key: 'Shift-Tab', run: handler(host, 'outdent', true) },

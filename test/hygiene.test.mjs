@@ -128,10 +128,15 @@ test('the built plugin bundles nothing but its own code', () => {
   assert.ok(main.length < 64000, `main.js is ${main.length} bytes; expected a small plugin`);
 });
 
-test('Prec.highest is used for Tab, Shift-Tab and the Enter family only', () => {
+test('Prec.high is used for Tab, Shift-Tab and the Enter family only, and Prec.highest nowhere', () => {
+  /* Prec.high sits above core's list keymap (default precedence, registered
+     after plugin extensions) and below the Live Preview image editor's
+     Enter and Tab (Prec.high, registered earlier). Prec.highest would
+     shadow the image editor. */
   const src = read('src/editor/keymap.ts');
-  const highest = src.slice(src.indexOf('Prec.highest('), src.indexOf('),\n    keymap.of(['));
-  const keys = [...highest.matchAll(/key: '([^']+)'/g)].map((m) => m[1]);
+  assert.doesNotMatch(src, /Prec\.highest/);
+  const high = src.slice(src.indexOf('Prec.high('), src.indexOf('),\n    keymap.of(['));
+  const keys = [...high.matchAll(/key: '([^']+)'/g)].map((m) => m[1]);
   assert.deepEqual(keys, ['Tab', 'Shift-Tab', 'Enter', 'Mod-Shift-Enter']);
-  assert.equal((src.match(/Prec\.highest/g) ?? []).length, 1);
+  assert.equal((src.match(/Prec\.high\(/g) ?? []).length, 1);
 });
