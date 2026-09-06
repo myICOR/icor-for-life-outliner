@@ -1,6 +1,6 @@
-/* The settings page as data. Both render paths of the settings tab (the
- * 1.13 declarative one and the imperative fallback) draw from this table,
- * and the tests read it to prove every setting has exactly one row. */
+/* The settings page as data. The settings tab's `getSettingDefinitions()`
+ * draws from this table, and the tests read it to prove every setting has
+ * exactly one row. */
 import type { OutlinerSettings } from './model';
 
 export type SettingGroup = 'Cursor' | 'Keys' | 'Mouse' | 'Folds' | 'Advanced';

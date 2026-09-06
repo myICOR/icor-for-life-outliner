@@ -3,5 +3,6 @@ export const PLUGIN_NAME = 'ICOR for Life - Outliner';
 /* Every DOM class this plugin ever adds starts with this. */
 export const CLASS_PREFIX = 'icor-outliner-';
 /* The INKLINE handshake: a surface marked with this attribute is owned by
-   the plugin and the theme's control skins stand down inside it. */
+   the plugin and the theme's control skins stand down inside it. Set on
+   the move-to picker only; the settings page is Obsidian's own. */
 export const INK_PLUGIN_ATTR = 'data-ink-plugin';

@@ -45,7 +45,17 @@ test('one identity across manifest, package and constants', () => {
   assert.equal(manifest.author, 'myICOR');
   assert.equal(manifest.authorUrl, 'https://myicor.com');
   assert.equal(manifest.isDesktopOnly, false, 'an editor extension runs on every platform');
+  /* The floor is a tested-core floor, not an API floor. The plugin
+     shadows core's list keymap and hands back to it on every pass, and
+     its correctness was proven against the 1.13 editor (its Enter, Tab,
+     the Live Preview image editor's Prec.high keymap, the table cell
+     editor); a keymap-shadowing plugin is coupled to the core it shadows.
+     The one API that needs 1.13 is getSettingDefinitions(); the display()
+     fallback that would have served older apps is deleted, because at
+     this floor no supported app calls it. Decision: Larry, 2026-09-06. */
   assert.equal(manifest.minAppVersion, '1.13.0');
+  const tab = read('src/settings/SettingsTab.ts').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(tab, /\bdisplay\(/, 'the display() fallback is dead at this floor');
   assert.doesNotMatch(manifest.id, /obsidian|plugin$/);
 });
 

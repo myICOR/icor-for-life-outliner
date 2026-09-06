@@ -1,10 +1,10 @@
-/* Two render paths, one table. Obsidian 1.13 renders `getSettingDefinitions()`
- * and indexes it for settings search; `display()` stays as the fallback and
- * nothing else, which is the case its deprecation notice carves out. Both
- * are driven from definitions.ts. */
-import { Platform, PluginSettingTab, Setting } from 'obsidian';
+/* The settings page, declared: Obsidian 1.13 renders `getSettingDefinitions()`
+ * and indexes it for settings search. The table it draws from is
+ * definitions.ts. There is no `display()` fallback: at a 1.13.0 floor no
+ * supported app would ever call it (see the floor note in
+ * test/manifest.test.mjs). */
+import { Platform, PluginSettingTab } from 'obsidian';
 import type { App } from 'obsidian';
-import { INK_PLUGIN_ATTR, PLUGIN_ID } from '../constants';
 import type OutlinerPlugin from '../main';
 import { groupsShown, rowsIn } from './definitions';
 import type { SettingRow } from './definitions';
@@ -20,8 +20,6 @@ export class OutlinerSettingsTab extends PluginSettingTab {
   constructor(app: App, private readonly plugin: OutlinerPlugin) {
     super(app, plugin);
   }
-
-  /* ------------------------------------------------ 1.13: declarative */
 
   override getSettingDefinitions(): Definitions {
     return groupsShown(Platform.isDesktop).map((group) => ({
@@ -44,29 +42,5 @@ export class OutlinerSettingsTab extends PluginSettingTab {
   override async setControlValue(key: string, value: unknown): Promise<void> {
     this.plugin.settings = normaliseSettings({ ...this.plugin.settings, [key]: value });
     await this.plugin.saveSettings();
-  }
-
-  /* ----------------------------------------- < 1.13: imperative fallback */
-
-  override display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
-    containerEl.addClass('icor-outliner-settings');
-    containerEl.setAttr(INK_PLUGIN_ATTR, PLUGIN_ID);
-    for (const group of groupsShown(Platform.isDesktop)) {
-      new Setting(containerEl).setName(group).setHeading();
-      for (const row of rowsIn(group, Platform.isDesktop)) this.render(containerEl, row);
-    }
-  }
-
-  private render(parent: HTMLElement, row: SettingRow): void {
-    const setting = new Setting(parent).setName(row.name).setDesc(row.desc);
-    const save = (value: unknown): void => void this.setControlValue(row.key, value);
-    const current = this.getControlValue(row.key);
-    if (row.type === 'toggle') {
-      setting.addToggle((t) => t.setValue(current === true).onChange(save));
-      return;
-    }
-    setting.addDropdown((d) => d.addOptions(row.options).setValue(typeof current === 'string' ? current : '').onChange(save));
   }
 }
