@@ -189,7 +189,7 @@ function finish(d: Drag): void {
   if (d.started) d.view.dispatch({ effects: setDragLines.of(null) });
 }
 
-function onMove(host: EditorHost, event: MouseEvent): void {
+function onMove(event: MouseEvent): void {
   const d = current;
   if (!d) return;
   if (!d.started) {
@@ -199,7 +199,6 @@ function onMove(host: EditorHost, event: MouseEvent): void {
   event.preventDefault();
   d.target = targetUnder(d, event.clientX, event.clientY);
   placeIndicator(d, d.target);
-  void host;
 }
 
 function onUp(host: EditorHost, event: MouseEvent): void {
@@ -242,7 +241,7 @@ function onKey(host: EditorHost, event: KeyboardEvent): void {
 function wire(host: EditorHost, doc: Document): void {
   if (wired.has(doc)) return;
   wired.add(doc);
-  host.registerDomEvent(doc, 'mousemove', (event) => onMove(host, event));
+  host.registerDomEvent(doc, 'mousemove', onMove);
   host.registerDomEvent(doc, 'mouseup', (event) => onUp(host, event));
   host.registerDomEvent(doc, 'keydown', (event) => onKey(host, event), { capture: true });
 }
