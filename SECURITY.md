@@ -102,9 +102,14 @@ refuses `addEventListener` and the global `document`.
 `FuzzySuggestModal` over the headings and list items of the current
 file, built from the editor's lines (`src/moveTo.ts`) and nothing else.
 
-**It registers thirteen commands.** `src/commands.ts`: bare ids, sentence
-case, an icon each, no default hotkeys (`test/manifest.test.mjs` pins all
-four).
+**It registers thirteen commands.** `src/commands.ts`, from the table in
+`src/commandTable.ts`: bare ids, sentence case, an icon each, one default
+hotkey each. `test/manifest.test.mjs` pins all four and checks every
+chord against Obsidian 1.13.7's own default hotkeys and its editor
+keymap, both carried in the test as data; the six chords the editor also
+binds hand the editor's own behaviour back outside a list
+(`src/editor/handBack.ts`, public API only: `Editor.exec`,
+`Editor.setSelection`, `EditorView.moveVertically`).
 
 **It stores eight settings.** `data.json` holds the eight keys listed in
 `src/settings/model.ts`, normalised on every read. No document text is
