@@ -21,6 +21,8 @@ import {
   outdent,
   outdentIfEmpty,
   selectAll,
+  selectDown,
+  selectUp,
 } from './operations';
 import type { OpContext, OpResult } from './operations';
 import { CONSUMED } from './operations';
@@ -60,6 +62,10 @@ function operate(action: ActionId, tree: ListTree, ctx: OpContext, editor: Outli
       return moveToPreviousLineEnd(tree, ctx);
     case 'select-all':
       return selectAll(tree, ctx);
+    case 'select-down':
+      return selectDown(tree);
+    case 'select-up':
+      return selectUp(tree);
     case 'move-up':
       return moveUp(tree);
     case 'move-down':

@@ -8,6 +8,7 @@ export interface OutlinerSettings {
   betterTab: boolean;
   betterEnter: boolean;
   selectAll: boolean;
+  selectItems: boolean;
   debug: boolean;
 }
 
@@ -16,6 +17,7 @@ export const DEFAULT_SETTINGS: OutlinerSettings = {
   betterTab: true,
   betterEnter: true,
   selectAll: true,
+  selectItems: true,
   debug: false,
 };
 
@@ -33,11 +35,12 @@ export function normaliseSettings(raw: unknown): OutlinerSettings {
     betterTab: bool(r.betterTab, DEFAULT_SETTINGS.betterTab),
     betterEnter: bool(r.betterEnter, DEFAULT_SETTINGS.betterEnter),
     selectAll: bool(r.selectAll, DEFAULT_SETTINGS.selectAll),
+    selectItems: bool(r.selectItems, DEFAULT_SETTINGS.selectItems),
     debug: bool(r.debug, DEFAULT_SETTINGS.debug),
   };
 }
 
-export type KeyAction = 'indent' | 'outdent' | 'enter' | 'backspace' | 'delete' | 'delete-to-line-start' | 'arrow-left' | 'select-all';
+export type KeyAction = 'indent' | 'outdent' | 'enter' | 'backspace' | 'delete' | 'delete-to-line-start' | 'arrow-left' | 'select-all' | 'select-down' | 'select-up';
 
 /* Is this key's behaviour switched on? Commands are never gated. */
 export function keyEnabled(settings: OutlinerSettings, action: KeyAction): boolean {
@@ -49,6 +52,9 @@ export function keyEnabled(settings: OutlinerSettings, action: KeyAction): boole
       return settings.betterEnter;
     case 'select-all':
       return settings.selectAll;
+    case 'select-down':
+    case 'select-up':
+      return settings.selectItems;
     case 'backspace':
     case 'delete':
     case 'delete-to-line-start':

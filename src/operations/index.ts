@@ -11,4 +11,5 @@ export * from './deleteBackward';
 export * from './deleteForward';
 export * from './deleteToLineStart';
 export * from './selectAll';
+export * from './selectItems';
 export * from './cursor';

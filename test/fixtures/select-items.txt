@@ -1,0 +1,319 @@
+=== Shift-Down from a cursor selects the item and the next one, whole
+--- given
+- a
+- b‸
+  - b1
+- c
+- d
+--- when key Shift-Down
+--- then
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+
+=== Shift-Down again adds the next sibling
+--- given
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+--- when key Shift-Down
+--- then
+- a
+⟨- b
+  - b1
+- c
+- d⟩
+
+=== Shift-Up shrinks the selection back by one sibling
+--- given
+- a
+⟨- b
+  - b1
+- c
+- d⟩
+--- when key Shift-Down
+--- then consumed
+- a
+⟨- b
+  - b1
+- c
+- d⟩
+
+=== Shift-Down at the last sibling swallows the key
+--- given
+- a
+⟨- b
+- c⟩
+--- when key Shift-Down
+--- then consumed
+- a
+⟨- b
+- c⟩
+
+=== Shift-Up from three items selected leaves two
+--- given
+- a
+⟨- b
+  - b1
+- c
+- d⟩
+--- when key Shift-Up
+--- then
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+
+=== Shift-Up from two items selected leaves the first alone, still whole
+--- given
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+--- when key Shift-Up
+--- then
+- a
+⟨- b
+  - b1⟩
+- c
+- d
+
+=== Shift-Up from one whole item extends upward with the anchor at the end
+--- given
+- a
+⟨- b
+  - b1⟩
+- c
+--- when key Shift-Up
+--- then
+⟩- a
+- b
+  - b1⟨
+- c
+
+=== Shift-Up from a cursor selects the item and the previous one
+--- given
+- a
+- b‸
+- c
+--- when key Shift-Up
+--- then
+⟩- a
+- b⟨
+- c
+
+=== Shift-Down from an upward selection shrinks it from the top
+--- given
+⟩- a
+- b
+  - b1⟨
+- c
+--- when key Shift-Down
+--- then
+- a
+⟨- b
+  - b1⟩
+- c
+
+=== Shift-Down from a cursor on the last sibling selects the item alone
+--- given
+- a
+- b‸
+  - b1
+--- when key Shift-Down
+--- then
+- a
+⟨- b
+  - b1⟩
+
+=== Shift-Down from a cursor on a notes line selects the owning item
+--- given
+- a
+  no‸te
+- b
+--- when key Shift-Down
+--- then
+⟨- a
+  note
+- b⟩
+
+=== Shift-Down selects at the child level when the cursor is on a child
+--- given
+- p
+  - q‸
+  - r
+- s
+--- when key Shift-Down
+--- then
+- p
+⟨  - q
+  - r⟩
+- s
+
+=== Shift-Down with a character selection passes to the editor
+--- given
+- a⟨b⟩c
+- d
+--- when key Shift-Down
+--- then passthrough
+- a⟨b⟩c
+- d
+
+=== Shift-Down with a selection that stops mid-item passes to the editor
+--- given
+⟨- a
+- b⟩c
+--- when key Shift-Down
+--- then passthrough
+⟨- a
+- b⟩c
+
+=== Shift-Down passes to the editor when switched off
+--- given select=off
+- a‸
+- b
+--- when key Shift-Down
+--- then passthrough
+- a‸
+- b
+
+=== Shift-Down outside a list passes to the editor
+--- given
+para‸graph
+- a
+--- when key Shift-Down
+--- then passthrough
+para‸graph
+- a
+
+=== Tab with whole items selected indents all of them
+--- given
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+--- when key Tab
+--- then
+- a
+⟨  - b
+    - b1
+  - c⟩
+- d
+
+=== Tab with whole items selected on the first sibling swallows the key
+--- given
+⟨- a
+- b⟩
+- c
+--- when key Tab
+--- then consumed
+⟨- a
+- b⟩
+- c
+
+=== Shift-Tab with whole items selected outdents all of them
+--- given
+- p
+⟨  - q
+  - r⟩
+  - s
+--- when key Shift-Tab
+--- then
+- p
+  - s
+⟨- q
+- r⟩
+
+=== Move up with whole items selected moves the run and keeps it selected
+--- given
+- a
+⟨- b
+- c
+  - c1⟩
+--- when command move-up
+--- then
+⟨- b
+- c
+  - c1⟩
+- a
+
+=== Move down with whole items selected joins the next parent as its first children
+--- given
+- p
+⟨  - q
+  - r⟩
+- s
+  - t
+--- when command move-down
+--- then
+- p
+- s
+⟨  - q
+  - r⟩
+  - t
+
+=== Move up with an upward selection keeps the anchor at the end
+--- given
+- a
+⟩- b
+- c⟨
+--- when command move-up
+--- then
+⟩- b
+- c⟨
+- a
+
+=== Tab with one whole item selected indents it with its children
+--- given
+- a
+⟨- b
+  - b1⟩
+--- when key Tab
+--- then
+- a
+⟨  - b
+    - b1⟩
+
+=== Enter with whole items selected passes to the editor
+--- given
+⟨- a
+- b⟩
+--- when key Enter
+--- then passthrough
+⟨- a
+- b⟩
+
+=== Tab with whole items selected renumbers both groups
+--- given
+1. a
+⟨2. b
+3. c⟩
+4. d
+--- when key Tab
+--- then
+1. a
+⟨  1. b
+  2. c⟩
+2. d
+
+=== Move down with whole items selected swaps the run past the next sibling
+--- given
+⟨- a
+- b
+  - b1⟩
+- c
+- d
+--- when command move-down
+--- then
+- c
+⟨- a
+- b
+  - b1⟩
+- d

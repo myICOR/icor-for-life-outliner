@@ -1,10 +1,10 @@
 /* The fixture grammar and its runner.
  *
  *   === name of the case
- *   --- given [unit=tab|2|4] [stick=never|bullet-only|bullet-and-checkbox] [tab=off] [enter=off] [selectall=off]
+ *   --- given [unit=tab|2|4] [stick=never|bullet-only|bullet-and-checkbox] [tab=off] [enter=off] [selectall=off] [select=off]
  *   lines of the document, with markers
  *   --- nodes <line> <node name> [<node name> ...]        (optional, repeatable)
- *   --- when key <Tab|Shift-Tab|Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a>
+ *   --- when key <Tab|Shift-Tab|Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
  *   --- when command <indent|outdent|move-up|move-down|fold|unfold>
  *   --- then [passthrough|consumed]
  *   lines of the expected document, with markers
@@ -36,6 +36,8 @@ const KEY_ACTIONS = {
   'Mod-Backspace': 'delete-to-line-start',
   ArrowLeft: 'arrow-left',
   'Mod-a': 'select-all',
+  'Shift-Down': 'select-down',
+  'Shift-Up': 'select-up',
 };
 
 const COMMANDS = new Set(['indent', 'outdent', 'move-up', 'move-down', 'fold', 'unfold']);
@@ -164,6 +166,7 @@ export function runCase(pure, c) {
     betterTab: c.options.tab !== 'off',
     betterEnter: c.options.enter !== 'off',
     selectAll: c.options.selectall !== 'off',
+    selectItems: c.options.select !== 'off',
   };
 
   let outcome;

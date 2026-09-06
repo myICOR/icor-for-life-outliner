@@ -2,8 +2,8 @@
  * handling, so they sit at the highest precedence, and each of them asks
  * the syntax tree first and steps aside on anything that is not a list
  * line: a table, a code block, a callout, frontmatter, a widget. The rest
- * (Backspace, Delete, Mod-Backspace on macOS, ArrowLeft, Mod-a) run at the
- * default precedence. Every handler returns false while an input method is
+ * (Backspace, Delete, Mod-Backspace on macOS, ArrowLeft, Mod-a, Shift-Up and
+ * Shift-Down) run at the default precedence. Every handler returns false while an input method is
  * composing on desktop, so a composition is never cut in half. */
 import { Prec } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
@@ -48,6 +48,8 @@ export function outlinerKeymaps(host: EditorHost): Extension[] {
       { key: 'ArrowLeft', run: handler(host, 'arrow-left', false) },
       { win: 'Ctrl-ArrowLeft', linux: 'Ctrl-ArrowLeft', run: handler(host, 'arrow-left', false) },
       { key: 'Mod-a', run: handler(host, 'select-all', false) },
+      { key: 'Shift-ArrowDown', run: handler(host, 'select-down', false) },
+      { key: 'Shift-ArrowUp', run: handler(host, 'select-up', false) },
     ]),
   ];
 }

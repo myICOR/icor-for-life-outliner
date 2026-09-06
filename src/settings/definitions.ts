@@ -62,6 +62,13 @@ export const SETTING_ROWS: readonly SettingRow[] = [
   },
   {
     type: 'toggle',
+    group: 'Keys',
+    key: 'selectItems',
+    name: 'Shift-Up/Down selects whole items',
+    desc: 'Shift-Down selects the item and the next one, whole, with their children; Shift-Up the item and the previous one. Tab, Shift-Tab, move, delete, duplicate, toggle done, expand and collapse then work on all of them at once.',
+  },
+  {
+    type: 'toggle',
     group: 'Advanced',
     key: 'debug',
     name: 'Debug logging',
