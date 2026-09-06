@@ -2,7 +2,8 @@
  * and indexes it for settings search. The table it draws from is
  * definitions.ts. There is no `display()` fallback: at a 1.13.0 floor no
  * supported app would ever call it (see the floor note in
- * test/manifest.test.mjs). */
+ * test/manifest.test.mjs). A change of scheme swaps the keymap in every
+ * open editor and rebuilds the page, so the read-only rows follow it. */
 import { Platform, PluginSettingTab } from 'obsidian';
 import type { App } from 'obsidian';
 import type OutlinerPlugin from '../main';
@@ -26,7 +27,7 @@ export class OutlinerSettingsTab extends PluginSettingTab {
       type: 'group' as const,
       heading: group,
       cls: GROUP_CLASS,
-      items: rowsIn(group, Platform.isDesktop, Platform.isMacOS).map((row) => this.toItem(row)),
+      items: rowsIn(group, Platform.isDesktop, Platform.isMacOS, this.plugin.settings.scheme).map((row) => this.toItem(row)),
     }));
   }
 
@@ -47,5 +48,9 @@ export class OutlinerSettingsTab extends PluginSettingTab {
   override async setControlValue(key: string, value: unknown): Promise<void> {
     this.plugin.settings = normaliseSettings({ ...this.plugin.settings, [key]: value });
     await this.plugin.saveSettings();
+    if (key === 'scheme') {
+      this.plugin.applyScheme();
+      this.update();
+    }
   }
 }

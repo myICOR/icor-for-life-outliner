@@ -7,7 +7,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EditorState, Text } from '@codemirror/state';
 import { foldEffect, foldService } from '@codemirror/language';
+import * as cm from './build/cm.mjs';
 import { cursorStick, editorInfoField, foldMarkers, foldsFromMarkers, ownEditor, ownFoldChange } from './build/cm.mjs';
+import { runSchemeCases } from './lib/scheme-cases.mjs';
 import { DEFAULT_SETTINGS } from './build/pure.mjs';
 
 function editorOver(text) {
@@ -108,3 +110,12 @@ test('restore on open: a marker before a block id folds the item, and a block id
   const o = stateWith(oldShape, editorOver(oldShape), [indentFolding]);
   assert.equal(foldsFromMarkers({ state: o }).length, 1, 'the shape an earlier build wrote still restores');
 });
+
+/* The scheme keymap, driven through a stub Editor over the state (see
+   test/lib/scheme-cases.mjs): inside a list the key runs the operation,
+   outside one it returns false so the editor's own key runs. */
+for (const c of runSchemeCases(cm)) {
+  test(`scheme keymap: ${c.name}`, () => {
+    assert.equal(c.problem, null, c.problem ?? '');
+  });
+}

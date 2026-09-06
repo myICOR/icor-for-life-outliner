@@ -1,19 +1,19 @@
 /* The commands, registered from the table in commandTable.ts, each with a
- * Lucide icon so it can sit on the mobile toolbar and a default hotkey the
- * user can change under Settings, Hotkeys. A command is offered only when
- * the cursor is in a list; run from its hotkey outside a list it does
- * what the editor does with that chord (handBack.ts) or nothing. The view
- * comes from the DOM of the MarkdownView when there is one (the outer
- * editor, even while a table cell is open) and from the registry
- * otherwise; either way it must be the Editor's own. */
+ * Lucide icon so it can sit on the mobile toolbar and no default hotkey:
+ * the keyboard schemes bind the same actions as editor keys that step
+ * aside outside a list (schemeKeymap.ts), and a hotkey the user sets
+ * under Settings, Hotkeys runs first and wins over the scheme. A command
+ * is offered only when the cursor is in a list; running one outside does
+ * nothing. The view comes from the DOM of the MarkdownView when there is
+ * one (the outer editor, even while a table cell is open) and from the
+ * registry otherwise; either way it must be the Editor's own. */
 import { EditorView } from '@codemirror/view';
 import { MarkdownView, Notice } from 'obsidian';
-import type { Editor, Hotkey as ObsidianHotkey, MarkdownFileInfo, Plugin } from 'obsidian';
+import type { App, Editor, MarkdownFileInfo, Plugin } from 'obsidian';
 import { runAction } from './actions';
+import type { OutlinerEditor } from './apply';
 import { COMMANDS, MOVE_TO_COMMAND } from './commandTable';
-import type { Hotkey } from './commandTable';
 import { CmEditorAdapter } from './editor/adapter';
-import { handBack } from './editor/handBack';
 import type { EditorHost } from './editor/host';
 import { paired } from './editor/pairing';
 import { viewFor } from './editor/registry';
@@ -32,9 +32,28 @@ function resolveView(editor: Editor, ctx: MarkdownView | MarkdownFileInfo): Edit
   return viewFor(editor);
 }
 
-/* A fresh copy for Obsidian, which may keep and mutate what it is handed. */
-function defaultHotkeys(hotkey: Hotkey): ObsidianHotkey[] {
-  return [{ modifiers: [...hotkey.modifiers], key: hotkey.key }];
+/* The picker: the targets come from the pure layer, the modal shows
+   them, and the move runs only if the document is still the one the
+   picker was opened on. False when the cursor is not in a list. Shared
+   by the command and the scheme key. */
+export function openMoveTo(app: App, host: EditorHost, editor: OutlinerEditor, view: EditorView): boolean {
+  const selection = editor.listSelections()[0];
+  if (!selection || findListBounds(editor, selection.head.line) === null) return false;
+  const targets = moveTargets(editor, selection);
+  if (targets.length === 0) {
+    new Notice(NOTHING_TO_MOVE_TO);
+    return true;
+  }
+  const doc = view.state.doc;
+  new MoveToModal(app, targets, (target) => {
+    if (!view.state.doc.eq(doc)) {
+      new Notice(CHANGED_MEANWHILE);
+      return;
+    }
+    const outcome = runMoveTo(editor, host.settings, target.line);
+    host.log(`${MOVE_TO_COMMAND.id}: ${outcome.reason}`);
+  }).open();
+  return true;
 }
 
 export function registerCommands(plugin: Plugin, host: EditorHost): void {
@@ -43,7 +62,6 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
       id: spec.id,
       name: spec.name,
       icon: spec.icon,
-      hotkeys: defaultHotkeys(spec.hotkey),
       editorCheckCallback: (checking, editor, ctx) => {
         const view = resolveView(editor, ctx);
         if (!view) return false;
@@ -51,7 +69,6 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
         if (checking) return findListBounds(adapter, editor.getCursor().line) !== null;
         const outcome = runAction(adapter, host.settings, spec.action);
         host.log(`${spec.id}: ${outcome.reason}`);
-        if (!outcome.consume && spec.handBack) handBack(spec.handBack, editor, view);
         return true;
       },
     });
@@ -61,28 +78,12 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
     id: MOVE_TO_COMMAND.id,
     name: MOVE_TO_COMMAND.name,
     icon: MOVE_TO_COMMAND.icon,
-    hotkeys: defaultHotkeys(MOVE_TO_COMMAND.hotkey),
     editorCheckCallback: (checking, editor, ctx) => {
       const view = resolveView(editor, ctx);
       if (!view) return false;
       const adapter = new CmEditorAdapter(editor, view, () => host.foldUnavailable());
       if (checking) return findListBounds(adapter, editor.getCursor().line) !== null;
-      const selection = adapter.listSelections()[0];
-      if (!selection) return true;
-      const targets = moveTargets(adapter, selection);
-      if (targets.length === 0) {
-        new Notice(NOTHING_TO_MOVE_TO);
-        return true;
-      }
-      const doc = view.state.doc;
-      new MoveToModal(plugin.app, targets, (target) => {
-        if (!view.state.doc.eq(doc)) {
-          new Notice(CHANGED_MEANWHILE);
-          return;
-        }
-        const outcome = runMoveTo(adapter, host.settings, target.line);
-        host.log(`${MOVE_TO_COMMAND.id}: ${outcome.reason}`);
-      }).open();
+      openMoveTo(plugin.app, host, adapter, view);
       return true;
     },
   });

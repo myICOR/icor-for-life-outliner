@@ -1,9 +1,12 @@
 /* The settings, their defaults, and the one normaliser that turns whatever
  * data.json holds into a valid record. Which key each setting gates lives
  * here too, so the keymap and the tests read the same table. */
+import type { SchemeId } from '../editor/schemes';
+import { SCHEME_IDS } from '../editor/schemes';
 import type { StickMode } from '../model';
 
 export interface OutlinerSettings {
+  scheme: SchemeId;
   stickCursor: StickMode;
   betterTab: boolean;
   betterEnter: boolean;
@@ -15,6 +18,7 @@ export interface OutlinerSettings {
 }
 
 export const DEFAULT_SETTINGS: OutlinerSettings = {
+  scheme: 'tana',
   stickCursor: 'bullet-and-checkbox',
   betterTab: true,
   betterEnter: true,
@@ -34,7 +38,9 @@ function bool(v: unknown, fallback: boolean): boolean {
 export function normaliseSettings(raw: unknown): OutlinerSettings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const stick = r.stickCursor;
+  const scheme = r.scheme;
   return {
+    scheme: typeof scheme === 'string' && (SCHEME_IDS as readonly string[]).includes(scheme) ? (scheme as SchemeId) : DEFAULT_SETTINGS.scheme,
     stickCursor: typeof stick === 'string' && (STICK_MODES as readonly string[]).includes(stick) ? (stick as StickMode) : DEFAULT_SETTINGS.stickCursor,
     betterTab: bool(r.betterTab, DEFAULT_SETTINGS.betterTab),
     betterEnter: bool(r.betterEnter, DEFAULT_SETTINGS.betterEnter),

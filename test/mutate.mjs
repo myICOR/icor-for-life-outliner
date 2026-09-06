@@ -6,8 +6,10 @@
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
+import { buildCm } from './lib/build-cm.mjs';
 import { buildPure } from './lib/build-pure.mjs';
 import { loadFixtures, runCase } from './lib/fixtures.mjs';
+import { SCHEME_CASES, runSchemeCases } from './lib/scheme-cases.mjs';
 
 const repo = resolve(import.meta.dirname, '..');
 const fixtures = loadFixtures(resolve(repo, 'test/fixtures'));
@@ -223,6 +225,16 @@ const MUTATIONS = [
     find: 'editor.replaceRange(change.text, change.from, change.to);',
     replace: 'for (const piece of change.text.split(\'\\n\')) { editor.replaceRange(piece, change.from, change.to); break; }',
   },
+  {
+    /* An editor-layer mutation: built with the cm harness and run against
+       the scheme cases, not the fixture corpus. */
+    id: 'scheme-outside-list-passthrough',
+    what: 'a scheme key returning false when the operation passed (consumes the key outside a list)',
+    file: 'src/editor/schemeKeymap.ts',
+    find: 'return outcome.consume;',
+    replace: 'return true;',
+    layer: 'cm',
+  },
 ];
 
 const root = resolve(repo, 'test/build/mutants');
@@ -241,17 +253,24 @@ for (const m of MUTATIONS) {
   const hits = source.split(m.find).length - 1;
   if (hits !== 1) throw new Error(`mutation ${m.id}: pattern found ${hits} times in ${m.file}, expected exactly once`);
   writeFileSync(target, source.replace(m.find, m.replace));
-  const bundle = await buildPure({ cwd: dir, entry: 'test/entry.ts', outfile: 'pure.mjs' });
-  const pure = await import(pathToFileURL(bundle).href);
   const red = [];
-  for (const c of fixtures) {
-    let problem;
-    try {
-      problem = runCase(pure, c);
-    } catch (e) {
-      problem = e instanceof Error ? e.message : String(e);
+  if (m.layer === 'cm') {
+    for (const f of ['cm-entry.ts', 'obsidian-stub.ts']) cpSync(resolve(repo, 'test', f), resolve(dir, 'test', f));
+    const bundle = await buildCm({ cwd: dir });
+    const cm = await import(pathToFileURL(bundle).href);
+    for (const c of runSchemeCases(cm)) if (c.problem !== null) red.push(`scheme: ${c.name}`);
+  } else {
+    const bundle = await buildPure({ cwd: dir, entry: 'test/entry.ts', outfile: 'pure.mjs' });
+    const pure = await import(pathToFileURL(bundle).href);
+    for (const c of fixtures) {
+      let problem;
+      try {
+        problem = runCase(pure, c);
+      } catch (e) {
+        problem = e instanceof Error ? e.message : String(e);
+      }
+      if (problem !== null) red.push(`${c.file.replace(/\.txt$/, '')}: ${c.name}`);
     }
-    if (problem !== null) red.push(`${c.file.replace(/\.txt$/, '')}: ${c.name}`);
   }
   if (red.length === 0) hollow++;
   rows.push({ ...m, red });
@@ -264,7 +283,7 @@ for (const r of rows) {
 const table = lines.join('\n');
 console.log(table);
 writeFileSync(resolve(repo, 'test/build/mutations.md'), `${table}\n`);
-console.log(`\n${rows.length} mutations, ${fixtures.length} cases each, ${hollow} hollow`);
+console.log(`\n${rows.length} mutations (${rows.filter((r) => r.layer === 'cm').length} on the editor layer), ${fixtures.length} fixture cases, ${SCHEME_CASES.length} scheme cases, ${hollow} hollow`);
 if (hollow > 0) {
   console.error('a mutation survived every case: that guard is not gated');
   process.exit(1);

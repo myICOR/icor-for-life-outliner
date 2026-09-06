@@ -11,5 +11,6 @@ export * from '../src/editor/pairing';
 export * from '../src/settings/model';
 export * from '../src/settings/definitions';
 export * from '../src/commandTable';
+export * from '../src/editor/schemes';
 export * from '../src/constants';
 export { FakeEditor } from './fake';

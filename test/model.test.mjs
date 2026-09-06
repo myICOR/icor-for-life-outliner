@@ -8,7 +8,7 @@ import {
   computeChange,
   keepCursorInContent, keepCursorOutsideFolded, contentStartOfLine,
   classifyNodeNames,
-  DEFAULT_SETTINGS, normaliseSettings, keyEnabled, SETTING_ROWS, settingKeys, rowsIn, groupsShown, SETTING_GROUPS, ALL_COMMANDS, EDITING_KEYS,
+  DEFAULT_SETTINGS, normaliseSettings, keyEnabled, SETTING_ROWS, settingKeys, rowsIn, groupsShown, SETTING_GROUPS, EDITING_KEYS, SCHEME_ACTIONS, commandName,
   FakeEditor,
 } from './build/pure.mjs';
 
@@ -223,24 +223,43 @@ test('settings: defaults, normalisation, key gates, one row per key', () => {
   for (const row of SETTING_ROWS) assert.ok(row.name === row.name.charAt(0).toUpperCase() + row.name.slice(1), `${row.name} starts with a capital`);
 });
 
-test('settings: the two read-only groups list every command and every editing key, for either platform', () => {
-  assert.deepEqual(SETTING_GROUPS, ['Cursor', 'Keys', 'Mouse', 'Folds', 'Keyboard shortcuts', 'Editing keys', 'Advanced']);
+test('settings: the scheme dropdown, the read-only rows for the active scheme, the editing keys, for either platform', () => {
+  assert.deepEqual(SETTING_GROUPS, ['Keyboard shortcuts', 'Cursor', 'Keys', 'Mouse', 'Folds', 'Editing keys', 'Advanced']);
   assert.deepEqual(groupsShown(true), SETTING_GROUPS);
   assert.deepEqual(groupsShown(false), SETTING_GROUPS.filter((g) => g !== 'Mouse'));
+  assert.equal(DEFAULT_SETTINGS.scheme, 'tana');
+  assert.equal(normaliseSettings({ scheme: 'heptabase' }).scheme, 'heptabase');
+  assert.equal(normaliseSettings({ scheme: 'workflowy' }).scheme, 'tana');
+  const keyCommands = ['indent', 'outdent', 'insert-above'];
   for (const mac of [true, false]) {
-    const shortcuts = rowsIn('Keyboard shortcuts', true, mac);
-    assert.ok(shortcuts.every((r) => r.type === 'info'), 'no control in the shortcuts group');
-    assert.equal(shortcuts.length, 1 + ALL_COMMANDS.length);
-    assert.match(shortcuts[0].desc, /Settings, Hotkeys; search for ICOR for Life - Outliner\./);
-    assert.deepEqual(shortcuts.slice(1).map((r) => r.name), ALL_COMMANDS.map((c) => c.name));
-    for (const [i, c] of ALL_COMMANDS.entries()) {
-      const row = shortcuts[i + 1];
-      assert.ok(row.desc.length > 0, `${c.id} shows no chord`);
-      if (['fold', 'unfold', 'collapse-all', 'expand-all'].includes(c.id)) assert.match(row.desc, /"Fold indent"/, `${c.id} names the fold indent requirement`);
-      if (c.handBack) assert.match(row.desc, /Outside a list/, `${c.id} says what the editor keeps`);
-      else assert.doesNotMatch(row.desc, /Outside a list/);
+    for (const scheme of ['tana', 'heptabase', 'none']) {
+      const rows = rowsIn('Keyboard shortcuts', true, mac, scheme);
+      assert.equal(rows[0].type, 'dropdown');
+      assert.equal(rows[0].key, 'scheme');
+      assert.deepEqual(Object.keys(rows[0].options), ['tana', 'heptabase', 'none']);
+      const info = rows.slice(1);
+      assert.ok(info.every((r) => r.type === 'info'));
+      assert.equal(info.length, 1 + SCHEME_ACTIONS.length + keyCommands.length, 'one row per command plus the intro');
+      assert.match(info[0].desc, /Settings, Hotkeys; search for ICOR for Life - Outliner\./);
+      assert.match(info[0].desc, /runs first, in every note/);
+      assert.deepEqual(info.slice(1).map((r) => r.name), [...SCHEME_ACTIONS, ...keyCommands].map(commandName));
+      for (const [i, action] of SCHEME_ACTIONS.entries()) {
+        const row = info[i + 1];
+        if (scheme === 'none') assert.match(row.desc, /^Not bound by a scheme\./, `${action} under no scheme`);
+        else assert.doesNotMatch(row.desc, /Not bound/);
+        if (['fold', 'unfold', 'collapse-all', 'expand-all'].includes(action)) assert.match(row.desc, /"Fold indent"/, `${action} names the fold indent requirement`);
+      }
+      for (const row of info.slice(1 + SCHEME_ACTIONS.length)) assert.match(row.desc, /a key in every scheme/);
     }
-    assert.match(shortcuts[1].desc, mac ? /^⌘ ⌥ ↑ / : /^Ctrl \+ Alt \+ ↑ /);
+    const tana = rowsIn('Keyboard shortcuts', true, mac, 'tana').slice(1);
+    const byName = (name) => tana.find((r) => r.name === name);
+    assert.match(byName(commandName('fold')).desc, mac ? /^⌘ ↑ / : /^Ctrl \+ ↑ /);
+    assert.match(byName(commandName('collapse-all')).desc, mac ? /^⌘ ⌃ ↑ / : /^Ctrl \+ Alt \+ ↑ /);
+    assert.match(byName(commandName('toggle-done')).desc, /"Open link under cursor in new tab" hotkey/);
+    assert.match(byName(commandName('toggle-done')).desc, mac ? /⌘ ⇧ L does the same and is free/ : /Ctrl \+ Shift \+ L does the same and is free/);
+    assert.doesNotMatch(byName(commandName('duplicate')).desc, /hotkey/);
+    const hepta = rowsIn('Keyboard shortcuts', true, mac, 'heptabase').slice(1);
+    assert.match(hepta.find((r) => r.name === commandName('duplicate')).desc, /"Delete paragraph" hotkey/);
     const keys = rowsIn('Editing keys', true, mac);
     assert.ok(keys.every((r) => r.type === 'info'));
     /* Mod-Backspace is a macOS key; elsewhere its row is not shown. */
