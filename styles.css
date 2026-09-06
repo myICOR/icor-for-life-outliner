@@ -1,0 +1,8 @@
+/* ICOR for Life - Outliner
+ *
+ * Nothing to see here on purpose. The plugin changes how list keys behave
+ * and never how a list looks: bullets, indent guides and fold markers are
+ * the theme's, and the ICOR for Life - INKLINE theme draws them. A later
+ * version that adds guide lines or drag handles puts its rules below this
+ * comment, on the `icor-outliner-` class prefix, on `--ink-*` or Obsidian's
+ * own variables, and never with `!important`. */

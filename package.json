@@ -1,0 +1,31 @@
+{
+  "name": "icor-for-life-outliner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ICOR for Life - Outliner - lists that behave like an outline.",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src styles.css",
+    "pretest": "node test/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "mutate": "node test/mutate.mjs",
+    "gate": "npm run typecheck && npm run build && npm run lint && npm test"
+  },
+  "devDependencies": {
+    "@codemirror/language": "6.12.4",
+    "@codemirror/state": "6.5.0",
+    "@codemirror/view": "6.38.6",
+    "@eslint/css": "^2.0.0",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.10.0",
+    "eslint-plugin-obsidianmd": "^0.4.2",
+    "obsidian": "^1.13.1",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.69.0"
+  }
+}

@@ -1,0 +1,52 @@
+/* The community directory's scanner, run in-repo. The rules it applies are
+ * published as eslint-plugin-obsidianmd, so `npm run lint` is the same
+ * instrument the directory uses, and a finding fails the gate here before it
+ * fails a listing in public. The stylesheet is in scope too, because the
+ * scanner reads it. */
+import { defineConfig } from 'eslint/config';
+import obsidianmd from 'eslint-plugin-obsidianmd';
+import css from '@eslint/css';
+
+export default defineConfig([
+  ...obsidianmd.configs.recommended.map((c) => ({
+    files: ['**/*.ts', '**/*.mjs'],
+    ...c,
+  })),
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: ['eslint.config.*'],
+        },
+      },
+    },
+    plugins: { obsidianmd },
+    rules: {
+      'obsidianmd/ui/sentence-case': ['warn', {
+        brands: ['ICOR', 'Obsidian'],
+        acronyms: ['ID'],
+      }],
+    },
+  },
+  {
+    /* The settings tab implements the 1.13 declarative API and keeps
+       `display()` ON PURPOSE as the fallback, which is the case its
+       deprecation notice carves out. Inline disables are forbidden by the
+       recommended config, so the exemption lives here, scoped to one file. */
+    files: ['src/settings/SettingsTab.ts'],
+    rules: {
+      '@typescript-eslint/no-deprecated': 'off',
+    },
+  },
+  {
+    files: ['styles.css'],
+    plugins: { css },
+    language: 'css/css',
+    rules: {
+      ...css.configs.recommended.rules,
+    },
+  },
+  {
+    ignores: ['main.js', 'node_modules/**', 'test/**'],
+  },
+]);
