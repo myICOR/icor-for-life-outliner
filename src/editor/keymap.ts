@@ -1,31 +1,37 @@
-/* The keys. Tab, Shift-Tab, Enter and Mod-Shift-Enter must run before the editor's own list
- * handling, so they sit at the highest precedence, and each of them asks
- * the syntax tree first and steps aside on anything that is not a list
- * line: a table, a code block, a callout, frontmatter, a widget. The rest
- * (Backspace, Delete, Mod-Backspace on macOS, ArrowLeft, Mod-a, Shift-Up and
- * Shift-Down) run at the default precedence. Every handler returns false while an input method is
- * composing on desktop, so a composition is never cut in half. */
+/* The keys. Tab, Shift-Tab, Enter and Mod-Shift-Enter must run before the
+ * editor's own list handling, so they sit at Prec.high: above core's list
+ * keymap (default precedence, registered after plugin extensions), below
+ * the Live Preview image editor's Enter and Tab (also Prec.high, registered
+ * earlier, and returning false unless an image is selected). Each of them
+ * asks the syntax tree first and steps aside on anything that is not a
+ * list line: a table, a code block, a callout, frontmatter, a widget. The
+ * rest (Backspace, Delete, Mod-Backspace on macOS, ArrowLeft, Mod-a,
+ * Shift-Up and Shift-Down) run at the default precedence. Every handler
+ * returns false while an input method is composing on desktop, so a
+ * composition is never cut in half, and false when the view is not the
+ * Editor's own (a table cell), so the cell's own keys run. */
 import { Prec } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
 import { keymap } from '@codemirror/view';
 import type { Command } from '@codemirror/view';
-import { Platform, editorInfoField } from 'obsidian';
+import { Platform } from 'obsidian';
 import { runKey } from '../actions';
 import type { KeyAction } from '../settings/model';
 import { CmEditorAdapter } from './adapter';
 import type { EditorHost } from './host';
 import { classifyNodeNames } from './nodes';
+import { ownEditor } from './registry';
 import { nodeNamesOnLine } from './syntax';
 
 function handler(host: EditorHost, action: KeyAction, treeFirst: boolean): Command {
   return (view) => {
     if (Platform.isDesktop && view.composing) return false;
+    const editor = ownEditor(view.state);
+    if (!editor) return false;
     if (treeFirst) {
       const line = view.state.doc.lineAt(view.state.selection.main.head).number - 1;
       if (classifyNodeNames(nodeNamesOnLine(view.state, line)) === 'other') return false;
     }
-    const editor = view.state.field(editorInfoField, false)?.editor;
-    if (!editor) return false;
     const outcome = runKey(new CmEditorAdapter(editor, view, () => host.foldUnavailable()), host.settings, action);
     host.log(`${action}: ${outcome.reason}`);
     return outcome.consume;

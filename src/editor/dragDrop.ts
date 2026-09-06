@@ -13,7 +13,7 @@ import { StateEffect, StateField } from '@codemirror/state';
 import type { Text } from '@codemirror/state';
 import { Decoration, EditorView, ViewPlugin } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
-import { Notice, Platform, editorInfoField } from 'obsidian';
+import { Notice, Platform } from 'obsidian';
 import { runDrop } from '../actions';
 import { parseBulletLine, parseList } from '../model';
 import type { ListItem, ListTree } from '../model';
@@ -21,6 +21,7 @@ import type { DropPlace } from '../operations';
 import { CmEditorAdapter } from './adapter';
 import type { EditorHost } from './host';
 import { classifyNodeNames } from './nodes';
+import { ownEditor } from './registry';
 import { nodeNamesOnLine } from './syntax';
 
 const DRAG_THRESHOLD_PX = 4;
@@ -82,7 +83,7 @@ function cursorAt(line: number): { anchor: { line: number; ch: number }; head: {
 }
 
 function adapterFor(host: EditorHost, view: EditorView): CmEditorAdapter | null {
-  const editor = view.state.field(editorInfoField, false)?.editor;
+  const editor = ownEditor(view.state);
   return editor ? new CmEditorAdapter(editor, view, () => host.foldUnavailable()) : null;
 }
 

@@ -107,6 +107,17 @@ test('drag and drop listens through the plugin, never through addEventListener, 
   assert.doesNotMatch(src, /\.style\./);
 });
 
+test('the Editor is reached through the pairing door only', () => {
+  /* `editorInfoField` hands out the parent note's Editor inside a table
+     cell; `ownEditor` in registry.ts is the one place that reads it and
+     checks the pairing, and every other module goes through that. */
+  for (const f of sources) {
+    if (f.endsWith('/registry.ts')) continue;
+    const text = readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    assert.doesNotMatch(text, /editorInfoField/, `${f.slice(repo.length + 1)} reads editorInfoField directly`);
+  }
+});
+
 test('the built plugin bundles nothing but its own code', () => {
   const main = read('main.js');
   assert.match(main, /require\("obsidian"\)/);

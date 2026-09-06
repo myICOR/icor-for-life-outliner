@@ -11,7 +11,10 @@
  * kept cheap: typing is skipped outright, only cursors (never ranges) are
  * looked at, and a line that is neither a bullet nor indented ends the
  * check before anything is parsed. Folds are read from the start state and
- * mapped, so the new state is never computed here. */
+ * mapped, so the new state is never computed here. Two more skips: a `set`
+ * transaction (a file load, core's own one-character syntax reset) is the
+ * editor placing the cursor, not the user moving it; and a view that is
+ * not its Editor's own (a table cell) is left alone. */
 import { foldedRanges } from '@codemirror/language';
 import { EditorSelection, EditorState } from '@codemirror/state';
 import type { Extension, Transaction, TransactionSpec } from '@codemirror/state';
@@ -19,6 +22,7 @@ import type { LineSource, Position } from '../model';
 import { keepCursorInContent, keepCursorOutsideFolded } from '../operations';
 import type { HiddenRange } from '../operations';
 import type { EditorHost } from './host';
+import { ownEditor } from './registry';
 
 const MAYBE_LIST_LINE = /^[ \t]*(?:[-*+]|\d+[.)])(?:[ \t]|$)|^[ \t]/;
 
@@ -41,6 +45,7 @@ export function cursorStick(host: EditorHost): Extension {
     if (mode === 'never') return tr;
     if (!tr.selection && !tr.docChanged) return tr;
     if (tr.isUserEvent('input')) return tr;
+    if (!ownEditor(tr.startState)) return tr;
 
     const doc = tr.newDoc;
     const source: LineSource = {

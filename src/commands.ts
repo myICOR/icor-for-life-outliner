@@ -1,6 +1,9 @@
 /* The commands, no default hotkeys (the README suggests some), each with a
  * Lucide icon so it can sit on the mobile toolbar. A command is offered
- * only when the cursor is in a list; running one outside does nothing. */
+ * only when the cursor is in a list; running one outside does nothing.
+ * The view comes from the DOM of the MarkdownView when there is one (the
+ * outer editor, even while a table cell is open) and from the registry
+ * otherwise; either way it must be the Editor's own. */
 import { EditorView } from '@codemirror/view';
 import { MarkdownView, Notice } from 'obsidian';
 import type { Editor, MarkdownFileInfo, Plugin } from 'obsidian';
@@ -8,6 +11,7 @@ import { runAction } from './actions';
 import type { ActionId } from './actions';
 import { CmEditorAdapter } from './editor/adapter';
 import type { EditorHost } from './editor/host';
+import { paired } from './editor/pairing';
 import { viewFor } from './editor/registry';
 import { MoveToModal } from './editor/moveToModal';
 import { findListBounds } from './model';
@@ -44,7 +48,11 @@ const NOTHING_TO_MOVE_TO = 'No heading or list item to move to in this file.';
 const CHANGED_MEANWHILE = 'The note changed while the picker was open; nothing was moved.';
 
 function resolveView(editor: Editor, ctx: MarkdownView | MarkdownFileInfo): EditorView | null {
-  return viewFor(editor) ?? (ctx instanceof MarkdownView ? EditorView.findFromDOM(ctx.contentEl) : null);
+  if (ctx instanceof MarkdownView) {
+    const view = EditorView.findFromDOM(ctx.contentEl);
+    if (view && paired(editor, view.state.doc)) return view;
+  }
+  return viewFor(editor);
 }
 
 export function registerCommands(plugin: Plugin, host: EditorHost): void {

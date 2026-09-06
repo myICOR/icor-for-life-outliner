@@ -9,7 +9,8 @@
  *
  * On open, the markers in the file are read and the folds applied. The
  * dispatch runs on a microtask: a view plugin may not dispatch while the
- * view is being built. */
+ * view is being built. Both halves step aside in a view that is not its
+ * Editor's own (a table cell). */
 import { foldEffect, foldable, unfoldEffect } from '@codemirror/language';
 import { Annotation, EditorState } from '@codemirror/state';
 import type { Extension, StateEffect, Transaction, TransactionSpec } from '@codemirror/state';
@@ -18,6 +19,7 @@ import type { EditorView } from '@codemirror/view';
 import type { LineSource } from '../model';
 import { foldMarkerEdit, markedFoldLines } from '../operations';
 import type { EditorHost } from './host';
+import { ownEditor } from './registry';
 
 /* Marks a transaction whose fold effects the plugin issued itself. */
 export const ownFoldChange = Annotation.define<boolean>();
@@ -49,6 +51,7 @@ function markerChanges(tr: Transaction): Change[] {
 function markerFilter(host: EditorHost): Extension {
   return EditorState.transactionFilter.of((tr): TransactionSpec | readonly TransactionSpec[] => {
     if (!host.settings.foldMarkers || tr.annotation(ownFoldChange) || tr.effects.length === 0) return tr;
+    if (!ownEditor(tr.startState)) return tr;
     const changes = markerChanges(tr);
     if (changes.length === 0) return tr;
     return [tr, { changes, sequential: true }];
@@ -72,7 +75,7 @@ const applyMarkersOnOpen = ViewPlugin.define((view) => {
   const doc = view.state.doc;
   let alive = true;
   void Promise.resolve().then(() => {
-    if (!alive || view.state.doc !== doc) return;
+    if (!alive || view.state.doc !== doc || !ownEditor(view.state)) return;
     const effects = foldsFromMarkers(view);
     if (effects.length > 0) view.dispatch({ effects, annotations: ownFoldChange.of(true) });
   });

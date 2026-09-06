@@ -234,3 +234,19 @@ test('fold markers: edits per line, the marked lines of a file', async () => {
   const editor = new FakeEditor(['- a %% fold %%', '  - b', 'para %% fold %%', '- c', '  - d %% fold %%'], []);
   assert.deepEqual(markedFoldLines(editor), [0, 4]);
 });
+
+test('paired: an Editor belongs to a document when the line count and the first line agree', async () => {
+  const { paired } = await import('./build/pure.mjs');
+  const doc = (text) => {
+    const lines = text.split('\n');
+    return { lines: lines.length, line: (n) => ({ text: lines[n - 1] }) };
+  };
+  const editor = (text) => {
+    const lines = text.split('\n');
+    return { lineCount: () => lines.length, getLine: (n) => lines[n] };
+  };
+  assert.equal(paired(editor('- a\n- b'), doc('- a\n- b')), true);
+  assert.equal(paired(editor('- a\n- b'), doc('- a')), false, 'a one-line table cell with the parent note\'s Editor');
+  assert.equal(paired(editor('- a\n- b'), doc('- x\n- b')), false, 'same count, other text');
+  assert.equal(paired(editor(''), doc('')), true, 'an empty note is paired with its own Editor');
+});
