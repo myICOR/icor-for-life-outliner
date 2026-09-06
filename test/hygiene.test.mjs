@@ -83,11 +83,28 @@ test('every class the plugin adds carries the icor-outliner- prefix', () => {
   }
 });
 
-test('the stylesheet carries no colour, no size, and no rule at all in this version', () => {
+test('the stylesheet: prefixed selectors, Obsidian variables only, no hex, no pixel, no !important', () => {
   const css = read('styles.css').replace(/\/\*[\s\S]*?\*\//g, '');
-  assert.equal(css.trim(), '', 'styles.css should be a comment and nothing else');
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i, 'a hex colour');
   assert.doesNotMatch(css, /!important/);
+  assert.doesNotMatch(css, /\d(px|em|rem)\b/, 'a literal length; sizes come from --size-* and --radius-*');
+  for (const m of css.matchAll(/([^{}]+)\{/g)) {
+    for (const selector of m[1].split(',')) assert.match(selector.trim(), /^\.icor-outliner-/, `selector ${selector.trim()} is not on the prefix`);
+  }
+  for (const m of css.matchAll(/(color|background[a-z-]*|z-index|font-weight|height|width|border-radius)\s*:\s*([^;]+);/g)) {
+    assert.match(m[2].trim(), /^var\(--|^calc\(|^\d+$/, `${m[1]}: ${m[2].trim()} is not an Obsidian variable`);
+  }
+});
+
+test('drag and drop listens through the plugin, never through addEventListener, and never on a global document', () => {
+  const src = read('src/editor/dragDrop.ts').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  assert.doesNotMatch(src, /addEventListener/);
+  assert.doesNotMatch(src, /\bdocument\b/, 'the global document');
+  assert.match(src, /registerDomEvent\(doc, 'mousemove'/);
+  assert.match(src, /registerDomEvent\(doc, 'mouseup'/);
+  assert.match(src, /registerDomEvent\(doc, 'keydown'/);
+  assert.match(src, /setCssProps\(/);
+  assert.doesNotMatch(src, /\.style\./);
 });
 
 test('the built plugin bundles nothing but its own code', () => {
@@ -97,7 +114,7 @@ test('the built plugin bundles nothing but its own code', () => {
   assert.match(main, /require\("@codemirror\/state"\)/);
   assert.match(main, /require\("@codemirror\/view"\)/);
   assert.doesNotMatch(main, /node_modules/, 'a dependency was bundled');
-  assert.ok(main.length < 40000, `main.js is ${main.length} bytes; expected a small plugin`);
+  assert.ok(main.length < 64000, `main.js is ${main.length} bytes; expected a small plugin`);
 });
 
 test('Prec.highest is used for Tab, Shift-Tab and the Enter family only', () => {

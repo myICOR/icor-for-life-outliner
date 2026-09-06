@@ -7,6 +7,7 @@
  *   --- when key <Tab|Shift-Tab|Enter|Mod-Shift-Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
  *   --- when command <indent|outdent|move-up|move-down|fold|unfold|insert-above|delete-with-subtree|duplicate|expand-all|collapse-all|toggle-done>
  *   --- when move-to <zero-based line of the target heading or item>
+ *   --- when drop <line of the dragged item> <before|after|child> <line of the target item>
  *   --- then [passthrough|consumed]
  *   lines of the expected document, with markers
  *
@@ -120,8 +121,8 @@ export function parseFixtureFile(text, file) {
       const [n, ...names] = line.slice(10).trim().split(/\s+/);
       current.nodes.push({ line: Number(n), names });
     } else if (line.startsWith('--- when ')) {
-      const [verb, arg] = line.slice(9).trim().split(/\s+/);
-      current.when = { verb, arg };
+      const [verb, ...rest] = line.slice(9).trim().split(/\s+/);
+      current.when = { verb, arg: rest[0], rest };
       block = null;
     } else if (line.startsWith('--- then')) {
       const word = line.slice(8).trim();
@@ -177,6 +178,9 @@ export function runCase(pure, c) {
     const action = KEY_ACTIONS[c.when.arg];
     if (!action) return `unknown key ${c.when.arg}`;
     outcome = pure.runKey(editor, settings, action);
+  } else if (c.when.verb === 'drop') {
+    const [source, place, target] = c.when.rest;
+    outcome = pure.runDrop(editor, settings, { sourceLine: Number(source), place, targetLine: Number(target) });
   } else if (c.when.verb === 'move-to') {
     outcome = pure.runMoveTo(editor, settings, Number(c.when.arg));
   } else if (c.when.verb === 'command') {

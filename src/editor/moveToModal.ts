@@ -3,7 +3,7 @@
  * it hands the chosen line to the operation. */
 import { FuzzySuggestModal } from 'obsidian';
 import type { App, FuzzyMatch } from 'obsidian';
-import { CLASS_PREFIX, INK_PLUGIN_ATTR, PLUGIN_ID } from '../constants';
+import { INK_PLUGIN_ATTR, PLUGIN_ID } from '../constants';
 import type { MoveTarget } from '../moveTo';
 
 export class MoveToModal extends FuzzySuggestModal<MoveTarget> {
@@ -29,7 +29,8 @@ export class MoveToModal extends FuzzySuggestModal<MoveTarget> {
   override renderSuggestion(match: FuzzyMatch<MoveTarget>, el: HTMLElement): void {
     super.renderSuggestion(match, el);
     el.addClass('icor-outliner-move-target');
-    el.addClass(`${CLASS_PREFIX}move-target-${match.item.kind}`);
+    if (match.item.kind === 'heading') el.addClass('icor-outliner-move-target-heading');
+    else el.addClass('icor-outliner-move-target-item');
     el.setCssProps({ '--icor-outliner-depth': String(match.item.depth - 1) });
   }
 

@@ -3,7 +3,7 @@
  * and the tests read it to prove every setting has exactly one row. */
 import type { OutlinerSettings } from './model';
 
-export type SettingGroup = 'Cursor' | 'Keys' | 'Folds' | 'Advanced';
+export type SettingGroup = 'Cursor' | 'Keys' | 'Mouse' | 'Folds' | 'Advanced';
 
 export interface ToggleRow {
   type: 'toggle';
@@ -11,6 +11,8 @@ export interface ToggleRow {
   key: keyof OutlinerSettings;
   name: string;
   desc: string;
+  /* Hidden on phones and tablets, where the feature does not exist. */
+  desktopOnly?: boolean;
 }
 
 export interface DropdownRow {
@@ -24,7 +26,7 @@ export interface DropdownRow {
 
 export type SettingRow = ToggleRow | DropdownRow;
 
-export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Folds', 'Advanced'];
+export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Mouse', 'Folds', 'Advanced'];
 
 export const SETTING_ROWS: readonly SettingRow[] = [
   {
@@ -69,6 +71,14 @@ export const SETTING_ROWS: readonly SettingRow[] = [
   },
   {
     type: 'toggle',
+    group: 'Mouse',
+    key: 'dragDrop',
+    name: 'Drag and drop',
+    desc: 'Drag a bullet with everything under it to a new place in its list: before or after another item, or into an item as its first child. Desktop only, with the mouse. Escape cancels.',
+    desktopOnly: true,
+  },
+  {
+    type: 'toggle',
     group: 'Folds',
     key: 'foldMarkers',
     name: 'Remember folds in the file',
@@ -87,6 +97,11 @@ export function settingKeys(): (keyof OutlinerSettings)[] {
   return SETTING_ROWS.map((r) => r.key);
 }
 
-export function rowsIn(group: SettingGroup): SettingRow[] {
-  return SETTING_ROWS.filter((r) => r.group === group);
+export function rowsIn(group: SettingGroup, desktop = true): SettingRow[] {
+  return SETTING_ROWS.filter((r) => r.group === group && (desktop || !(r.type === 'toggle' && r.desktopOnly)));
+}
+
+/* Groups with at least one row on this platform. */
+export function groupsShown(desktop = true): SettingGroup[] {
+  return SETTING_GROUPS.filter((g) => rowsIn(g, desktop).length > 0);
 }

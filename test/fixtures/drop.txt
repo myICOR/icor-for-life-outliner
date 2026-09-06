@@ -1,0 +1,157 @@
+=== Drop before an item moves the subtree above it
+--- given
+- a
+- b
+  - b1
+- c‸
+--- when drop 1 before 0
+--- then
+- ‸b
+  - b1
+- a
+- c
+
+=== Drop after an item lands after its whole subtree
+--- given
+- a
+- b
+  - b1
+- c
+--- when drop 0 after 1
+--- then
+- b
+  - b1
+- ‸a
+- c
+
+=== Drop into a childless item makes the dragged item its first child
+--- given
+- a
+- b
+- c
+--- when drop 2 child 0
+--- then
+- a
+  - ‸c
+- b
+
+=== Drop into an item with children puts the dragged item first
+--- given
+- a
+  - a1
+- b
+--- when drop 2 child 0
+--- then
+- a
+  - ‸b
+  - a1
+
+=== Drop takes the indent step from the target's children
+--- given
+- a
+    - a1
+- b
+--- when drop 2 child 0
+--- then
+- a
+    - ‸b
+    - a1
+
+=== Drop before a nested item takes that item's indent
+--- given
+- a
+  - a1
+- b
+--- when drop 2 before 1
+--- then
+- a
+  - ‸b
+  - a1
+
+=== Drop inside its own subtree is refused
+--- given
+- a
+  - a1
+- b
+--- when drop 0 child 1
+--- then consumed
+- a
+  - a1
+- b
+
+=== Drop keeps the dragged item's fold and unfolds a folded target it enters
+--- given
+- a ⊟
+  - a1
+- b ⊟
+  - b1
+--- when drop 2 child 0
+--- then
+- a
+  - ‸b ⊟
+    - b1
+  - a1
+
+=== Drop renumbers an ordered list
+--- given
+1. a
+2. b
+3. c
+--- when drop 2 before 0
+--- then
+1. ‸c
+2. a
+3. b
+
+=== Drop carries the notes lines
+--- given
+- a
+  a note
+- b
+--- when drop 0 after 2
+--- then
+- b
+- ‸a
+  a note
+
+=== Drop from a notes line of the dragged item moves the owning item
+--- given
+- a
+  a note
+- b
+--- when drop 1 after 2
+--- then
+- b
+- ‸a
+  a note
+
+=== Drop on a line outside the list is refused
+--- given
+- a
+- b
+paragraph
+--- when drop 0 after 2
+--- then consumed
+- a
+- b
+paragraph
+
+=== Drop after the previous sibling changes nothing
+--- given
+- a
+- b
+--- when drop 1 after 0
+--- then
+- a
+- ‸b
+
+=== Drop writes fold markers when the file remembers folds
+--- given markers=on
+- a ⊟
+  - a1
+- b
+--- when drop 2 child 0
+--- then
+- a
+  - ‸b
+  - a1

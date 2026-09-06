@@ -10,6 +10,7 @@ export interface OutlinerSettings {
   selectAll: boolean;
   selectItems: boolean;
   foldMarkers: boolean;
+  dragDrop: boolean;
   debug: boolean;
 }
 
@@ -20,6 +21,7 @@ export const DEFAULT_SETTINGS: OutlinerSettings = {
   selectAll: true,
   selectItems: true,
   foldMarkers: false,
+  dragDrop: true,
   debug: false,
 };
 
@@ -39,6 +41,7 @@ export function normaliseSettings(raw: unknown): OutlinerSettings {
     selectAll: bool(r.selectAll, DEFAULT_SETTINGS.selectAll),
     selectItems: bool(r.selectItems, DEFAULT_SETTINGS.selectItems),
     foldMarkers: bool(r.foldMarkers, DEFAULT_SETTINGS.foldMarkers),
+    dragDrop: bool(r.dragDrop, DEFAULT_SETTINGS.dragDrop),
     debug: bool(r.debug, DEFAULT_SETTINGS.debug),
   };
 }

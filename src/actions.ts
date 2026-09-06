@@ -15,6 +15,7 @@ import {
   createItem,
   deleteTillLineStart,
   deleteWithSubtree,
+  dropItem,
   duplicate,
   expandAll,
   insertAbove,
@@ -32,7 +33,7 @@ import {
   syncFoldMarkers,
   toggleDone,
 } from './operations';
-import type { OpContext, OpResult } from './operations';
+import type { DropPlace, OpContext, OpResult } from './operations';
 import { CONSUMED, UPDATED } from './operations';
 import { keyEnabled } from './settings/model';
 import type { KeyAction, OutlinerSettings } from './settings/model';
@@ -122,6 +123,35 @@ export function runAction(editor: OutlinerEditor, settings: OutlinerSettings, ac
   if (settings.foldMarkers) syncFoldMarkers(tree);
   const applied = applyTree(editor, tree, before);
   return { consume: result.consume, changed: applied.docChanged, reason: 'applied' };
+}
+
+export interface DropSpec {
+  /* Any line of the dragged item; the item's own subtree goes with it. */
+  sourceLine: number;
+  /* The bullet line of the target item, in the same list. */
+  targetLine: number;
+  place: DropPlace;
+}
+
+/* A drop is a move whose two ends come from the pointer, not from the
+ * cursor: the list is parsed around the dragged line, and the cursor ends
+ * up on the moved item. */
+export function runDrop(editor: OutlinerEditor, settings: OutlinerSettings, spec: DropSpec): ActionOutcome {
+  if (classifyNodeNames(editor.nodeNamesAt(spec.sourceLine)) === 'other') return pass('not a list line');
+  const at = { line: spec.sourceLine, ch: 0 };
+  const parsed = parseList(editor, spec.sourceLine, { foldedLines: editor.foldedLines(), indentUnit: editor.indentUnit(), selection: { anchor: at, head: at } });
+  if (!parsed.ok) return pass(parsed.reason);
+  const tree = parsed.tree;
+  const source = tree.locateLine(spec.sourceLine);
+  const target = tree.locateLine(spec.targetLine);
+  if (!source) return pass('the dragged line is not in the list');
+  if (!target || target.lineIndex !== 0) return { consume: true, changed: false, reason: 'the target is not an item of this list' };
+  const before = printTree(tree);
+  const result = dropItem(tree, source.item, target.item, spec.place, { mode: settings.stickCursor });
+  if (!result.updated) return { consume: true, changed: false, reason: 'refused' };
+  if (settings.foldMarkers) syncFoldMarkers(tree);
+  const applied = applyTree(editor, tree, before);
+  return { consume: true, changed: applied.docChanged, reason: 'applied' };
 }
 
 /* Run a key's action only when its setting is on (keymaps). */

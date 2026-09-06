@@ -182,6 +182,27 @@ const MUTATIONS = [
     replace: 'return text;',
   },
   {
+    id: 'drop-child-place',
+    what: 'a drop into an item as its first child (lands after it instead)',
+    file: 'src/operations/drop.ts',
+    find: "const asChild = place === 'child';",
+    replace: 'const asChild = false;',
+  },
+  {
+    id: 'drop-step-before-attach',
+    what: 'the child indent step read before the item moves in (read after)',
+    file: 'src/operations/drop.ts',
+    find: 'const childIndent = target.indent + stepFor(tree, target, item);\n  tree.detach(item);',
+    replace: 'tree.detach(item);\n  if (asChild) tree.attach(item, target, 0);\n  const childIndent = target.indent + stepFor(tree, target, item);\n  if (asChild) tree.detach(item);',
+  },
+  {
+    id: 'drop-inside-refusal',
+    what: 'the refusal of a drop inside the dragged subtree',
+    file: 'src/operations/drop.ts',
+    find: 'if (inside(target, item)) return CONSUMED;',
+    replace: '',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',

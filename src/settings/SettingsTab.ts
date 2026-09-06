@@ -2,11 +2,11 @@
  * and indexes it for settings search; `display()` stays as the fallback and
  * nothing else, which is the case its deprecation notice carves out. Both
  * are driven from definitions.ts. */
-import { PluginSettingTab, Setting } from 'obsidian';
+import { Platform, PluginSettingTab, Setting } from 'obsidian';
 import type { App } from 'obsidian';
 import { INK_PLUGIN_ATTR, PLUGIN_ID } from '../constants';
 import type OutlinerPlugin from '../main';
-import { SETTING_GROUPS, rowsIn } from './definitions';
+import { groupsShown, rowsIn } from './definitions';
 import type { SettingRow } from './definitions';
 import { normaliseSettings } from './model';
 
@@ -24,11 +24,11 @@ export class OutlinerSettingsTab extends PluginSettingTab {
   /* ------------------------------------------------ 1.13: declarative */
 
   override getSettingDefinitions(): Definitions {
-    return SETTING_GROUPS.map((group) => ({
+    return groupsShown(Platform.isDesktop).map((group) => ({
       type: 'group' as const,
       heading: group,
       cls: GROUP_CLASS,
-      items: rowsIn(group).map((row) => this.toItem(row)),
+      items: rowsIn(group, Platform.isDesktop).map((row) => this.toItem(row)),
     }));
   }
 
@@ -53,9 +53,9 @@ export class OutlinerSettingsTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.addClass('icor-outliner-settings');
     containerEl.setAttr(INK_PLUGIN_ATTR, PLUGIN_ID);
-    for (const group of SETTING_GROUPS) {
+    for (const group of groupsShown(Platform.isDesktop)) {
       new Setting(containerEl).setName(group).setHeading();
-      for (const row of rowsIn(group)) this.render(containerEl, row);
+      for (const row of rowsIn(group, Platform.isDesktop)) this.render(containerEl, row);
     }
   }
 

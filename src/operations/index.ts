@@ -18,4 +18,5 @@ export * from './duplicate';
 export * from './foldAll';
 export * from './toggleDone';
 export * from './foldMarker';
+export * from './drop';
 export * from './cursor';

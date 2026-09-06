@@ -47,6 +47,10 @@ export default defineConfig([
     language: 'css/css',
     rules: {
       ...css.configs.recommended.rules,
+      /* Every value in styles.css is one of Obsidian's variables, which
+         the scanner cannot see; it validates the shape and lets the
+         names through. */
+      'css/no-invalid-properties': ['error', { allowUnknownVariables: true }],
     },
   },
   {
