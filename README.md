@@ -116,7 +116,9 @@ you were dragging (sync, another window), nothing moves and a notice says
 so. A click on a bullet without dragging puts the cursor into the item.
 The drop is one edit and one undo step. Off under Settings, Mouse, "Drag
 and drop"; the setting is not shown on phones and tablets, where the
-feature does not exist. Pop-out windows work like the main one.
+feature does not exist. Pop-out windows work like the main one: the
+listeners a window needs are set up on the first press on a bullet in
+it, because an editor moved into a pop-out keeps its view.
 
 ## Mobile
 

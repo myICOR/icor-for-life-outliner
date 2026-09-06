@@ -5,8 +5,11 @@
  * and the parser; no class name is scraped. The drop line is one element
  * positioned through CSS custom properties. Listeners for the move, the
  * release and Escape sit on the document of the window the editor lives
- * in, registered once per document through the plugin, so a pop-out
- * window works like the main one. The drop itself is one runDrop: one
+ * in, registered once per document through the plugin, when the view is
+ * built and again on every press: an editor moved into a pop-out window
+ * keeps its view (only the root changes), so the press is the one event
+ * that is sure to fire in the window the pointer is in, and a pop-out
+ * works like the main one. The drop itself is one runDrop: one
  * detach, one attach, one replaceRange, one undo step. If the document
  * changed under the drag, nothing moves and a notice says so. */
 import { StateEffect, StateField } from '@codemirror/state';
@@ -238,7 +241,8 @@ function onKey(host: EditorHost, event: KeyboardEvent): void {
   host.log('drop: cancelled');
 }
 
-/* One set of listeners per window document, for the life of the plugin. */
+/* One set of listeners per window document, for the life of the plugin.
+   Idempotent, so it runs when a view is built and on every press. */
 function wire(host: EditorHost, doc: Document): void {
   if (wired.has(doc)) return;
   wired.add(doc);
@@ -267,6 +271,7 @@ export function dragDrop(host: EditorHost) {
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return false;
           const hit = bulletUnder(host, view, event.clientX, event.clientY);
           if (!hit) return false;
+          wire(host, view.dom.doc);
           current = { ...hit, startX: event.clientX, startY: event.clientY, started: false, indicator: null, target: null };
           return true;
         },

@@ -107,6 +107,22 @@ test('drag and drop listens through the plugin, never through addEventListener, 
   assert.doesNotMatch(src, /\.style\./);
 });
 
+test('drag and drop wires the window on the first press, not only when the view is built', () => {
+  /* Obsidian moves an editor into a pop-out window without rebuilding
+     its view (the view's root changes, no plugin is re-created), so the
+     constructor sees only the window the editor was born in. The press
+     is the one event that always fires in the window the pointer is in,
+     so `wire` runs there first, before the drag is recorded; the WeakSet
+     makes the repeat free. */
+  const src = read('src/editor/dragDrop.ts').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  const handler = src.slice(src.indexOf('mousedown(event, view) {'), src.indexOf('return true;'));
+  const wireAt = handler.indexOf('wire(host, view.dom.doc)');
+  const recordAt = handler.indexOf('current = {');
+  assert.ok(wireAt >= 0, 'the mousedown handler wires the document it fires in');
+  assert.ok(recordAt >= 0, 'the mousedown handler records the drag');
+  assert.ok(wireAt < recordAt, 'the document is wired before the drag is recorded');
+});
+
 test('the Editor is reached through the pairing door only', () => {
   /* `editorInfoField` hands out the parent note's Editor inside a table
      cell; `ownEditor` in registry.ts is the one place that reads it and
