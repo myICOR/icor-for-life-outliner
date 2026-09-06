@@ -10,7 +10,14 @@
  * On open, the markers in the file are read and the folds applied. The
  * dispatch runs on a microtask: a view plugin may not dispatch while the
  * view is being built. Both halves step aside in a view that is not its
- * Editor's own (a table cell). */
+ * Editor's own (a table cell).
+ *
+ * Obsidian's own fold restore on open is a plain, unannotated dispatch of
+ * fold effects, so it passes through the filter like a gutter click: with
+ * the setting on, opening a note writes markers for every fold Obsidian
+ * remembers that the file does not. Documented as the behaviour for
+ * 0.1.0; the settling-window guard is the follow-up named in the release
+ * notes. */
 import { foldEffect, foldable, unfoldEffect } from '@codemirror/language';
 import { Annotation, EditorState } from '@codemirror/state';
 import type { Extension, StateEffect, Transaction, TransactionSpec } from '@codemirror/state';

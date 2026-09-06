@@ -24,8 +24,10 @@ an issue.
 - **It reads the editor's syntax tree** to know a list line from a table,
   a code block, a callout or frontmatter.
 - **It writes one thing into your files only if you switch it on:** the
-  `%% fold %%` marker described under "Folds that survive a reinstall".
-  Off by default.
+  `%% fold %%` marker described under "Folds that survive a reinstall",
+  written when an item is folded or unfolded, when a note is opened whose
+  folds Obsidian remembers but the file does not, and on the next edit in
+  a list that holds such a fold. Off by default.
 - **It makes no network connection, reads no file, spawns nothing.**
   `SECURITY.md` names the file to read behind every claim.
 
@@ -160,21 +162,33 @@ end of that item's line:
   - hidden child
 ```
 
-and unfolding removes it. The comment is invisible in reading view. On
-open, the plugin reads the markers and applies the folds itself. The
-marker is written for folds made with the keyboard, the commands, the
-fold gutter and Obsidian's own fold commands alike, in the same edit as
-the fold, so undo stays one step.
+and unfolding removes it. It is an Obsidian comment: reading view hides
+it, Live Preview and source mode show the word `fold` faint at the end of
+the line, the way any comment shows there. On open, the plugin reads the
+markers and applies the folds itself. The marker is written for folds
+made with the keyboard, the commands, the fold gutter and Obsidian's own
+fold commands alike, in the same edit as the fold, so undo stays one
+step.
 
 It is off by default because every fold then changes the file, which is
 a diff in a vault under version control. With the setting off, no marker
 is ever written and markers already in a file are left alone but still
 honoured on open, so a note that was marked on one device folds the same
-way on another. Two things to know: the marker sits at the very end of
-the line, so text typed at the end of a folded item goes after it (unfold,
-type, fold, and the marker follows); and with the setting on, the next
-edit in a list also writes markers for items that were already folded
-without one, so the file catches up.
+way on another. Three things to know:
+
+- The marker sits at the very end of the line, before a trailing block
+  id when the item has one (`- item %% fold %% ^abc`, so `[[note#^abc]]`
+  keeps resolving). Text typed at the end of a folded item goes after
+  the marker (unfold, type, fold, and the marker follows).
+- With the setting on, the file catches up on its own: opening a note
+  writes markers for every fold Obsidian already remembers for it (folds
+  made before the setting was on, folds made in reading view, folds
+  remembered from another device), so a note can change on open before
+  you type; and the next edit in a list writes markers for items that
+  were folded without one.
+- A fold from the gutter is not an undo step, but the marker it writes
+  is: Mod-Z right after a gutter fold removes the marker and leaves the
+  item folded; the next fold change writes it again.
 
 ## Two outliners at once
 

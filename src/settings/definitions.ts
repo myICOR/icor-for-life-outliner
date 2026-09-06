@@ -82,7 +82,7 @@ export const SETTING_ROWS: readonly SettingRow[] = [
     group: 'Folds',
     key: 'foldMarkers',
     name: 'Remember folds in the file',
-    desc: 'Folding an item writes an invisible %% fold %% comment at the end of its line and unfolding removes it, so folds survive a reinstall, a new device and any sync tool. Off by default because every fold then changes the file, which shows up as an edit in a vault under version control. Markers already in a file are honoured on open either way.',
+    desc: 'Folding an item writes a %% fold %% comment at the end of its line and unfolding removes it, so folds survive a reinstall, a new device and any sync tool. It is an Obsidian comment: hidden in reading view, shown faint at the line end in Live Preview and source mode. With this on, opening a note also writes markers for folds Obsidian already remembers, and so does the next edit in a list, so the file catches up. Off by default because every fold then changes the file, which shows up as an edit in a vault under version control. Markers already in a file are honoured on open either way.',
   },
   {
     type: 'toggle',
