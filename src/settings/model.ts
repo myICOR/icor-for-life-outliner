@@ -9,6 +9,7 @@ export interface OutlinerSettings {
   betterEnter: boolean;
   selectAll: boolean;
   selectItems: boolean;
+  foldMarkers: boolean;
   debug: boolean;
 }
 
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: OutlinerSettings = {
   betterEnter: true,
   selectAll: true,
   selectItems: true,
+  foldMarkers: false,
   debug: false,
 };
 
@@ -36,6 +38,7 @@ export function normaliseSettings(raw: unknown): OutlinerSettings {
     betterEnter: bool(r.betterEnter, DEFAULT_SETTINGS.betterEnter),
     selectAll: bool(r.selectAll, DEFAULT_SETTINGS.selectAll),
     selectItems: bool(r.selectItems, DEFAULT_SETTINGS.selectItems),
+    foldMarkers: bool(r.foldMarkers, DEFAULT_SETTINGS.foldMarkers),
     debug: bool(r.debug, DEFAULT_SETTINGS.debug),
   };
 }

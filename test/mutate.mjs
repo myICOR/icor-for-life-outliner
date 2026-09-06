@@ -168,6 +168,20 @@ const MUTATIONS = [
     replace: 'const targetOffset = 0;',
   },
   {
+    id: 'fold-marker-write',
+    what: 'the marker written for a folded item (never written)',
+    file: 'src/operations/foldMarker.ts',
+    find: 'const after = item.folded && item.hasChildren() ? withFoldMarker(before) : withoutFoldMarker(before);',
+    replace: 'const after = withoutFoldMarker(before);',
+  },
+  {
+    id: 'fold-marker-strip',
+    what: 'the marker removed for an open item (never removed)',
+    file: 'src/operations/foldMarker.ts',
+    find: 'return hasFoldMarker(text) ? text.slice(0, -FOLD_MARKER.length) : text;',
+    replace: 'return text;',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',

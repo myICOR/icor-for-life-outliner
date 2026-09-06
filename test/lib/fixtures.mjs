@@ -1,7 +1,7 @@
 /* The fixture grammar and its runner.
  *
  *   === name of the case
- *   --- given [unit=tab|2|4] [stick=never|bullet-only|bullet-and-checkbox] [tab=off] [enter=off] [selectall=off] [select=off]
+ *   --- given [unit=tab|2|4] [stick=never|bullet-only|bullet-and-checkbox] [tab=off] [enter=off] [selectall=off] [select=off] [markers=on]
  *   lines of the document, with markers
  *   --- nodes <line> <node name> [<node name> ...]        (optional, repeatable)
  *   --- when key <Tab|Shift-Tab|Enter|Mod-Shift-Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
@@ -169,6 +169,7 @@ export function runCase(pure, c) {
     betterEnter: c.options.enter !== 'off',
     selectAll: c.options.selectall !== 'off',
     selectItems: c.options.select !== 'off',
+    foldMarkers: c.options.markers === 'on',
   };
 
   let outcome;

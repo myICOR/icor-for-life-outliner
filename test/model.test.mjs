@@ -218,3 +218,19 @@ test('move-to targets: headings and items in order, the moved subtree left out',
     [7, 'item', '[x] x', 1],
   ]);
 });
+
+test('fold markers: edits per line, the marked lines of a file', async () => {
+  const { FOLD_MARKER, foldMarkerEdit, markedFoldLines, hasFoldMarker, withFoldMarker, withoutFoldMarker } = await import('./build/pure.mjs');
+  assert.equal(FOLD_MARKER, ' %% fold %%');
+  assert.deepEqual(foldMarkerEdit('- a', true), { from: 3, to: 3, insert: ' %% fold %%' });
+  assert.equal(foldMarkerEdit('- a %% fold %%', true), null, 'already marked');
+  assert.deepEqual(foldMarkerEdit('- a %% fold %%', false), { from: 3, to: 14, insert: '' });
+  assert.equal(foldMarkerEdit('- a', false), null);
+  assert.equal(foldMarkerEdit('# heading', true), null, 'only list items carry markers');
+  assert.equal(foldMarkerEdit('  note %% fold %%', false), null, 'a notes line is not an item');
+  assert.equal(withFoldMarker(withFoldMarker('- a')), '- a %% fold %%');
+  assert.equal(withoutFoldMarker('- a'), '- a');
+  assert.equal(hasFoldMarker('- a %% fold %% '), false, 'the marker sits at the very end');
+  const editor = new FakeEditor(['- a %% fold %%', '  - b', 'para %% fold %%', '- c', '  - d %% fold %%'], []);
+  assert.deepEqual(markedFoldLines(editor), [0, 4]);
+});

@@ -1,7 +1,8 @@
 /* The engine's editor interface over Obsidian's Editor and the CodeMirror
  * view behind it. Text and selection go through the documented Editor
  * methods; folds go through @codemirror/language's fold effects, never
- * through CSS; the indent unit comes from the editor's own configuration.
+ * through CSS, annotated as the plugin's own so the fold-marker filter
+ * stands aside; the indent unit comes from the editor's own configuration.
  * The view is handed in by whoever already holds it (a keymap handler, or
  * the registry for commands); no private field is read to find it. */
 import { foldEffect, foldable, foldedRanges, getIndentUnit, indentString, unfoldEffect } from '@codemirror/language';
@@ -11,6 +12,7 @@ import type { Editor } from 'obsidian';
 import type { LineChange, OutlinerEditor } from '../apply';
 import type { Position, SelectionRange } from '../model';
 import type { HiddenRange } from '../operations';
+import { ownFoldChange } from './foldMarkers';
 import { nodeNamesOnLine } from './syntax';
 
 export class CmEditorAdapter implements OutlinerEditor {
@@ -74,7 +76,7 @@ export class CmEditorAdapter implements OutlinerEditor {
       this.onFoldUnavailable();
       return;
     }
-    this.view.dispatch({ effects: foldEffect.of(range) });
+    this.view.dispatch({ effects: foldEffect.of(range), annotations: ownFoldChange.of(true) });
   }
 
   unfold(line: number): void {
@@ -84,7 +86,7 @@ export class CmEditorAdapter implements OutlinerEditor {
     foldedRanges(state).between(l.from, l.to, (from, to) => {
       if (state.doc.lineAt(from).number === l.number) effects.push(unfoldEffect.of({ from, to }));
     });
-    if (effects.length > 0) this.view.dispatch({ effects });
+    if (effects.length > 0) this.view.dispatch({ effects, annotations: ownFoldChange.of(true) });
   }
 
   indentUnit(): string {

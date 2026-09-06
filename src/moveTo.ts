@@ -15,7 +15,7 @@ import type { ActionOutcome } from './actions';
 import { classifyNodeNames } from './editor/nodes';
 import { ListTree, findListBounds, lineKind, parseBulletLine, parseList, printTree } from './model';
 import type { ListItem, Position, SelectionRange } from './model';
-import { renumber, selectedItems, setIndent, setWholeItemSelection, stepFor } from './operations';
+import { renumber, selectedItems, setIndent, setWholeItemSelection, stepFor, syncFoldMarkers } from './operations';
 import type { ItemSelection } from './operations';
 import type { OutlinerSettings } from './settings/model';
 
@@ -156,6 +156,10 @@ function settle(tree: ListTree, sel: ItemSelection, mode: OutlinerSettings['stic
   else tree.setCursor(first, 0, first.contentStart(mode));
 }
 
+function lineDelta(change: LineChange): number {
+  return change.text.split('\n').length - 1 - (change.to.line - change.from.line);
+}
+
 function shifted(pos: Position, lines: number): Position {
   return { line: pos.line + lines, ch: pos.ch };
 }
@@ -184,6 +188,7 @@ export function runMoveTo(editor: OutlinerEditor, settings: OutlinerSettings, ta
     for (const item of sel.items) source.detach(item);
     attachAll(source, parent, sel.items);
     settle(source, sel, mode);
+    if (settings.foldMarkers) syncFoldMarkers(source);
     const change = computeChange(before, printTree(source), source.startLine);
     if (change) {
       unfoldSpan(editor, change);
@@ -205,12 +210,14 @@ export function runMoveTo(editor: OutlinerEditor, settings: OutlinerSettings, ta
     target = dest.tree;
     const old = printTree(target);
     attachAll(target, dest.parent, sel.items);
+    if (settings.foldMarkers) syncFoldMarkers(target);
     arrival = computeChange(old, printTree(target), target.startLine) as LineChange;
   } else {
     const first = sel.items[0] as ListItem;
     const startLine = dest.anchorLine + 1 + (dest.blankBefore ? 1 : 0);
     target = new ListTree(startLine, [], editor.indentUnit(), { anchor: null, head: { item: first, lineIndex: 0, ch: 0 } });
     attachAll(target, null, sel.items);
+    if (settings.foldMarkers) syncFoldMarkers(target);
     const lines = printTree(target);
     const at: Position = { line: dest.anchorLine, ch: editor.getLine(dest.anchorLine).length };
     arrival = {
@@ -223,6 +230,7 @@ export function runMoveTo(editor: OutlinerEditor, settings: OutlinerSettings, ta
       newEnd: startLine + lines.length - 1,
     };
   }
+  if (settings.foldMarkers) syncFoldMarkers(source);
   const departure = computeChange(before, printTree(source), source.startLine) as LineChange;
   settle(target, sel, mode);
 
@@ -230,9 +238,11 @@ export function runMoveTo(editor: OutlinerEditor, settings: OutlinerSettings, ta
   unfoldSpan(editor, arrival);
   editor.applyChanges([departure, arrival]);
 
-  /* Whichever span came first in the file shifts the lines of the other. */
-  const departureDelta = departure.newEnd - departure.newStart - (departure.oldEnd - departure.oldStart);
-  const arrivalDelta = arrival.newEnd - arrival.newStart - (arrival.oldEnd - arrival.oldStart);
+  /* Whichever span came first in the file shifts the lines of the other,
+     by the lines its text adds minus the lines its span removes (a list
+     that empties leaves its line behind, so the ranges alone would lie). */
+  const departureDelta = lineDelta(departure);
+  const arrivalDelta = lineDelta(arrival);
   const sourceFirst = source.startLine < target.startLine;
   reconcileFolds(editor, source, sourceFirst ? 0 : arrivalDelta);
   const targetOffset = sourceFirst ? departureDelta : 0;

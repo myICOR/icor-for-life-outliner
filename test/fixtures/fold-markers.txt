@@ -1,0 +1,130 @@
+=== Fold writes the marker when the file remembers folds
+--- given markers=on
+- a‸
+  - b
+--- when command fold
+--- then consumed
+- a‸ %% fold %% ⊟
+  - b
+
+=== Unfold removes the marker when the file remembers folds
+--- given markers=on
+- a‸ %% fold %% ⊟
+  - b
+--- when command unfold
+--- then consumed
+- a‸
+  - b
+
+=== Fold writes no marker when the setting is off
+--- given
+- a‸
+  - b
+--- when command fold
+--- then consumed
+- a‸ ⊟
+  - b
+
+=== Unfold leaves an existing marker alone when the setting is off
+--- given
+- a‸ %% fold %% ⊟
+  - b
+--- when command unfold
+--- then consumed
+- a‸ %% fold %%
+  - b
+
+=== Tab into a folded sibling strips its marker with the unfold
+--- given markers=on
+- a %% fold %% ⊟
+  - a1
+- b‸
+--- when key Tab
+--- then
+- a
+  - a1
+  - b‸
+
+=== Collapse all writes a marker on every level in one edit
+--- given markers=on
+- a‸
+  - b
+    - c
+--- when command collapse-all
+--- then consumed
+- a‸ %% fold %% ⊟
+  - b %% fold %% ⊟
+    - c
+
+=== Expand all removes every marker in one edit
+--- given markers=on
+- a‸ %% fold %% ⊟
+  - b %% fold %% ⊟
+    - c
+--- when command expand-all
+--- then consumed
+- a‸
+  - b
+    - c
+
+=== A moved folded item keeps its marker and its fold
+--- given markers=on
+- a
+- b‸ %% fold %% ⊟
+  - b1
+--- when command move-up
+--- then
+- b‸ %% fold %% ⊟
+  - b1
+- a
+
+=== Duplicate copies the marker with the fold
+--- given markers=on
+- a‸ %% fold %% ⊟
+  - b
+--- when command duplicate
+--- then
+- a %% fold %% ⊟
+  - b
+- ‸a %% fold %% ⊟
+  - b
+
+=== An item folded without a marker gets one on the next edit in the list
+--- given markers=on
+- a ⊟
+  - a1
+- b‸
+- c
+--- when command move-down
+--- then
+- a %% fold %% ⊟
+  - a1
+- c
+- b‸
+
+=== Fold on an item without children writes nothing
+--- given markers=on
+- a‸
+- b
+--- when command fold
+--- then consumed
+- a‸
+- b
+
+=== Move to a folded target in another list strips the target's marker
+--- given markers=on
+- a‸
+
+text
+
+- x %% fold %% ⊟
+  - x1
+--- when move-to 4
+--- then
+⏎
+
+text
+
+- x
+  - x1
+  - ‸a

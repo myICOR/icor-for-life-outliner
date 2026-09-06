@@ -1,8 +1,9 @@
 /* The one door between an editor and the operations. A key handler or a
  * command names an action; this file runs the guards that apply to every
  * action (one selection, a list line by the syntax tree, a parseable list),
- * parses the list around the cursor, runs the operation, applies the tree
- * back and says whether the key is consumed. It has no idea what
+ * parses the list around the cursor, runs the operation, brings the fold
+ * markers in step when the file remembers folds, applies the tree back
+ * and says whether the key is consumed. It has no idea what
  * CodeMirror is, which is what makes the whole thing testable. */
 import { applyTree } from './apply';
 import type { OutlinerEditor } from './apply';
@@ -28,10 +29,11 @@ import {
   selectAll,
   selectDown,
   selectUp,
+  syncFoldMarkers,
   toggleDone,
 } from './operations';
 import type { OpContext, OpResult } from './operations';
-import { CONSUMED } from './operations';
+import { CONSUMED, UPDATED } from './operations';
 import { keyEnabled } from './settings/model';
 import type { KeyAction, OutlinerSettings } from './settings/model';
 
@@ -48,7 +50,7 @@ function pass(reason: string): ActionOutcome {
   return { consume: false, changed: false, reason };
 }
 
-function operate(action: ActionId, tree: ListTree, ctx: OpContext, editor: OutlinerEditor): OpResult {
+function operate(action: ActionId, tree: ListTree, ctx: OpContext): OpResult {
   switch (action) {
     case 'indent':
       return indent(tree);
@@ -90,13 +92,15 @@ function operate(action: ActionId, tree: ListTree, ctx: OpContext, editor: Outli
       return moveDown(tree);
     case 'fold': {
       const item = tree.selection.head.item;
-      if (item.hasChildren() && !item.folded) editor.fold(tree.lineOf(item));
-      return CONSUMED;
+      if (!item.hasChildren() || item.folded) return CONSUMED;
+      item.folded = true;
+      return UPDATED;
     }
     case 'unfold': {
       const item = tree.selection.head.item;
-      if (item.folded) editor.unfold(tree.lineOf(item));
-      return CONSUMED;
+      if (!item.folded) return CONSUMED;
+      item.folded = false;
+      return UPDATED;
     }
     default:
       return CONSUMED;
@@ -113,8 +117,9 @@ export function runAction(editor: OutlinerEditor, settings: OutlinerSettings, ac
   if (!parsed.ok) return pass(parsed.reason);
   const tree = parsed.tree;
   const before = printTree(tree);
-  const result = operate(action, tree, { mode: settings.stickCursor }, editor);
+  const result = operate(action, tree, { mode: settings.stickCursor });
   if (!result.updated) return { consume: result.consume, changed: false, reason: result.consume ? 'consumed' : 'passed by the operation' };
+  if (settings.foldMarkers) syncFoldMarkers(tree);
   const applied = applyTree(editor, tree, before);
   return { consume: result.consume, changed: applied.docChanged, reason: 'applied' };
 }

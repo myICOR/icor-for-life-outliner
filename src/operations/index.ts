@@ -17,4 +17,5 @@ export * from './deleteSubtree';
 export * from './duplicate';
 export * from './foldAll';
 export * from './toggleDone';
+export * from './foldMarker';
 export * from './cursor';

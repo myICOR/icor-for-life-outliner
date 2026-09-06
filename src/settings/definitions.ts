@@ -3,7 +3,7 @@
  * and the tests read it to prove every setting has exactly one row. */
 import type { OutlinerSettings } from './model';
 
-export type SettingGroup = 'Cursor' | 'Keys' | 'Advanced';
+export type SettingGroup = 'Cursor' | 'Keys' | 'Folds' | 'Advanced';
 
 export interface ToggleRow {
   type: 'toggle';
@@ -24,7 +24,7 @@ export interface DropdownRow {
 
 export type SettingRow = ToggleRow | DropdownRow;
 
-export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Advanced'];
+export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Folds', 'Advanced'];
 
 export const SETTING_ROWS: readonly SettingRow[] = [
   {
@@ -66,6 +66,13 @@ export const SETTING_ROWS: readonly SettingRow[] = [
     key: 'selectItems',
     name: 'Shift-Up/Down selects whole items',
     desc: 'Shift-Down selects the item and the next one, whole, with their children; Shift-Up the item and the previous one. Tab, Shift-Tab, move, delete, duplicate, toggle done, expand and collapse then work on all of them at once.',
+  },
+  {
+    type: 'toggle',
+    group: 'Folds',
+    key: 'foldMarkers',
+    name: 'Remember folds in the file',
+    desc: 'Folding an item writes an invisible %% fold %% comment at the end of its line and unfolding removes it, so folds survive a reinstall, a new device and any sync tool. Off by default because every fold then changes the file, which shows up as an edit in a vault under version control. Markers already in a file are honoured on open either way.',
   },
   {
     type: 'toggle',

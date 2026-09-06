@@ -6,6 +6,7 @@
 import { Notice, Plugin } from 'obsidian';
 import { registerCommands } from './commands';
 import { cursorStick } from './editor/cursorStick';
+import { foldMarkers } from './editor/foldMarkers';
 import type { EditorHost } from './editor/host';
 import { outlinerKeymaps } from './editor/keymap';
 import { viewRegistry } from './editor/registry';
@@ -21,7 +22,7 @@ export default class OutlinerPlugin extends Plugin implements EditorHost {
 
   override async onload(): Promise<void> {
     this.settings = normaliseSettings(await this.loadData());
-    this.registerEditorExtension([viewRegistry, ...outlinerKeymaps(this), cursorStick(this)]);
+    this.registerEditorExtension([viewRegistry, ...outlinerKeymaps(this), cursorStick(this), ...foldMarkers(this)]);
     registerCommands(this, this);
     this.addSettingTab(new OutlinerSettingsTab(this.app, this));
   }
