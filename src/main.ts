@@ -1,9 +1,9 @@
 /* ICOR for Life - Outliner. Lists that behave like an outline: the keys
  * around a bullet know about the item's children, the cursor stays in the
- * content, and six commands carry the same behaviour to the palette and
- * the mobile toolbar. The plugin edits the active editor and nothing else:
- * no file access, no network. Its only styling is the drop line of a drag
- * and the rows of the move-to picker. */
+ * content, and thirteen commands carry the same behaviour to the palette
+ * and the mobile toolbar. The plugin edits the active editor and nothing
+ * else: no file access, no network. Its only styling is the drop line of
+ * a drag and the rows of the move-to picker. */
 import { Notice, Platform, Plugin } from 'obsidian';
 import { registerCommands } from './commands';
 import { cursorStick } from './editor/cursorStick';

@@ -38,29 +38,75 @@ Only the most recent release is supported. One branch, no backports.
 
 ## Scope: exactly what this plugin does
 
-**It edits the active editor, and only through the documented editor API.**
-`src/editor/adapter.ts` is the one place the plugin touches an editor. It
-reads lines and selections, and writes with `replaceRange` and
-`setSelection`. Every operation issues at most one `replaceRange`
-(`test/fixtures.test.mjs` pins that per case), which is also what keeps
-undo to one step per key.
+**It edits the note in the active editor, and only through the documented
+editor API.** `src/editor/adapter.ts` is where the plugin's operations
+touch an editor. It reads lines and selections, and writes with
+`replaceRange` and `setSelection`; every key and command issues at most
+one `replaceRange` (`test/fixtures.test.mjs` pins that per case), which is
+what keeps undo to one step per key. Moving an item to another list in
+the same file is the one two-span write: `Editor.transaction` with two
+changes, so the departure and the arrival are one undo step
+(`applyChanges` in the same file; `test/fake.ts` counts it as one edit).
 
-**It folds and unfolds through the editor's fold effects.** The same file
-dispatches `foldEffect` and `unfoldEffect` from `@codemirror/language`.
-Nothing is hidden with CSS.
+**It writes one thing into a file on its own, only with a setting on.**
+With "Remember folds in the file" on (off by default), the `%% fold %%`
+marker is appended to a folded item's line and removed on unfold. Two
+paths, both through the editor, never through `Vault.modify`:
+`src/operations/foldMarker.ts` puts the marker into the text an operation
+writes anyway, and `src/editor/foldMarkers.ts` is a transaction filter
+that appends the change to a fold made outside the plugin (the fold
+gutter, Obsidian's own fold commands, and Obsidian's restore of
+remembered folds on open), inside that transaction.
+`test/editor-layer.test.mjs` runs the filter against a real editor state.
+With the setting off, nothing is written; markers already in a file are
+read (`markedFoldLines`) and the folds applied on open, through fold
+effects.
+
+**It folds and unfolds through the editor's fold effects.** `adapter.ts`
+and `foldMarkers.ts` dispatch `foldEffect` and `unfoldEffect` from
+`@codemirror/language`. Nothing is hidden with CSS.
 
 **It reads the editor's syntax tree.** `src/editor/syntax.ts` asks the
-editor's own parser which kind of line the cursor is on, so a `- item`
-line inside frontmatter, a code block, a table or a callout is left alone.
+editor's own parser which kind of line the cursor is on, and
+`src/editor/nodes.ts` reads a `- item` line inside frontmatter, a code
+block (fenced or indented), a table, a callout, a quote, an HTML block or
+a math block as not a list, so it is left alone.
 
-**It registers keys and a transaction filter.** `src/editor/keymap.ts`
-binds Tab, Shift-Tab, Enter (highest precedence, each checking the syntax
-tree first), Backspace, Delete, Mod-Backspace on macOS, ArrowLeft and
-Mod-A (default precedence). `src/editor/cursorStick.ts` moves a cursor
-that landed inside a bullet or a folded block, inside the same
-transaction. Both are switched off per key in settings.
+**It registers keys.** `src/editor/keymap.ts` binds Tab, Shift-Tab, Enter
+and Mod-Shift-Enter at `Prec.high` (above the editor's own list keys,
+below the Live Preview image editor's; each checks the syntax tree first)
+and Backspace, Delete, Mod-Backspace on macOS, ArrowLeft (Ctrl-ArrowLeft
+on Windows and Linux), Mod-A, Shift-ArrowUp and Shift-ArrowDown at the
+default precedence. `test/hygiene.test.mjs` pins the `Prec.high` set and
+refuses `Prec.highest`. Every handler returns false unless the view is
+its Editor's own (`src/editor/pairing.ts`, `src/editor/registry.ts`), so
+a Live Preview table cell keeps its own keys.
 
-**It stores five settings.** `data.json` holds the five keys listed in
+**It registers two transaction filters.** `src/editor/cursorStick.ts`
+moves a cursor that landed inside a bullet or a folded block, inside the
+same transaction. `src/editor/foldMarkers.ts` is the marker filter
+above. Both step aside in a view that is not its Editor's own. Keys and
+filters are switched off per feature in settings.
+
+**It listens to the mouse on desktop.** `src/editor/dragDrop.ts` registers
+three listeners per window document (`mousemove`, `mouseup`, and
+`keydown` for Escape) through `Plugin.registerDomEvent`, so they are
+released on unload; each returns at once while no drag is live. Geometry
+comes from the view's public API (`posAtCoords`, `coordsAtPos`,
+`lineBlockAt`); the drop line is one element positioned through CSS
+custom properties; no class name of the editor's DOM is read. Not
+registered on mobile. `test/hygiene.test.mjs` pins `registerDomEvent`,
+refuses `addEventListener` and the global `document`.
+
+**It opens one modal.** `src/editor/moveToModal.ts` is a
+`FuzzySuggestModal` over the headings and list items of the current
+file, built from the editor's lines (`src/moveTo.ts`) and nothing else.
+
+**It registers thirteen commands.** `src/commands.ts`: bare ids, sentence
+case, an icon each, no default hotkeys (`test/manifest.test.mjs` pins all
+four).
+
+**It stores eight settings.** `data.json` holds the eight keys listed in
 `src/settings/model.ts`, normalised on every read. No document text is
 ever written there.
 
@@ -79,13 +125,18 @@ never logged.
 
 ## What a review should look at
 
-1. That `src/editor/adapter.ts` is the only module that writes to an
-   editor, and that it writes with `replaceRange` and `setSelection` only.
+1. That `src/editor/adapter.ts` and `src/editor/foldMarkers.ts` are the
+   only modules that change document text, and that they do so with
+   `replaceRange`, `transaction`, `setSelection` and a change appended to
+   a fold transaction, nothing else.
 2. That nothing in `src/` reaches a private field of Obsidian or of the
    editor (`test/hygiene.test.mjs` lists the names it refuses).
-3. That the built `main.js` requires `obsidian` and the three
+3. That `src/editor/dragDrop.ts` registers its listeners through
+   `registerDomEvent` only, on the document of the editor's own window
+   (same test).
+4. That the built `main.js` requires `obsidian` and the three
    `@codemirror` packages and bundles nothing else (same test).
-4. That the mutation runs in `test/mutate.mjs` still turn every guard red.
+5. That the mutation runs in `test/mutate.mjs` still turn every guard red.
 
 ## Obsidian's own guidance
 
