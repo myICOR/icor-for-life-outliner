@@ -40,6 +40,21 @@
     - a1
     - b‸
 
+=== Tab prefers the sibling's own step over the step used elsewhere in the list
+--- given
+- x
+   - x1
+- a
+    - a1
+- b‸
+--- when key Tab
+--- then
+- x
+   - x1
+- a
+    - a1
+    - b‸
+
 === Tab takes the indent step from the item itself when the sibling has no children
 --- given
 - p
@@ -50,6 +65,21 @@
 - p
     - a
         - b‸
+
+=== Tab prefers the item's own step over the step used elsewhere in the list
+--- given
+- p
+  - a
+- r
+    - s
+    - t‸
+--- when key Tab
+--- then
+- p
+  - a
+- r
+    - s
+        - t‸
 
 === Tab takes the indent step from elsewhere in the list before the editor's unit
 --- given unit=2
