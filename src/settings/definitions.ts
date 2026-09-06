@@ -3,8 +3,11 @@
  * and the tests read it to prove every setting has exactly one row. */
 import type { OutlinerSettings } from './model';
 
+export type SettingGroup = 'Cursor' | 'Keys' | 'Advanced';
+
 export interface ToggleRow {
   type: 'toggle';
+  group: SettingGroup;
   key: keyof OutlinerSettings;
   name: string;
   desc: string;
@@ -12,6 +15,7 @@ export interface ToggleRow {
 
 export interface DropdownRow {
   type: 'dropdown';
+  group: SettingGroup;
   key: keyof OutlinerSettings;
   name: string;
   desc: string;
@@ -20,9 +24,12 @@ export interface DropdownRow {
 
 export type SettingRow = ToggleRow | DropdownRow;
 
+export const SETTING_GROUPS: readonly SettingGroup[] = ['Cursor', 'Keys', 'Advanced'];
+
 export const SETTING_ROWS: readonly SettingRow[] = [
   {
     type: 'dropdown',
+    group: 'Cursor',
     key: 'stickCursor',
     name: 'Keep the cursor in the content',
     desc: 'Where the cursor may go on a list line. Also governs Backspace, Delete and the arrow keys at the start of an item.',
@@ -34,24 +41,28 @@ export const SETTING_ROWS: readonly SettingRow[] = [
   },
   {
     type: 'toggle',
+    group: 'Keys',
     key: 'betterTab',
     name: 'Tab moves the whole item',
     desc: 'Tab and Shift-Tab indent and outdent an item together with everything under it.',
   },
   {
     type: 'toggle',
+    group: 'Keys',
     key: 'betterEnter',
     name: 'Enter knows about children',
     desc: 'Enter at the end of an item with children starts a new first child; an empty nested item is outdented instead of doubled.',
   },
   {
     type: 'toggle',
+    group: 'Keys',
     key: 'selectAll',
     name: 'Select all climbs',
-    desc: 'Mod-A selects the item, then the item with its children, then the whole list, then the note.',
+    desc: 'Select all picks the item, then the item with its children, then the whole list, then the note.',
   },
   {
     type: 'toggle',
+    group: 'Advanced',
     key: 'debug',
     name: 'Debug logging',
     desc: 'Writes what each key did, and why it did nothing, to the developer console.',
@@ -60,4 +71,8 @@ export const SETTING_ROWS: readonly SettingRow[] = [
 
 export function settingKeys(): (keyof OutlinerSettings)[] {
   return SETTING_ROWS.map((r) => r.key);
+}
+
+export function rowsIn(group: SettingGroup): SettingRow[] {
+  return SETTING_ROWS.filter((r) => r.group === group);
 }
