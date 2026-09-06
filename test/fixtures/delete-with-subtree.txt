@@ -1,0 +1,111 @@
+=== Delete with subtree removes the item and its children and moves the cursor to the next item
+--- given
+- a
+- b‸
+  - b1
+    - b2
+- c
+--- when command delete-with-subtree
+--- then
+- a
+- ‸c
+
+=== Delete with subtree from the middle of the line works the same
+--- given
+- a
+- b‸cd
+  - b1
+- e
+--- when command delete-with-subtree
+--- then
+- a
+- ‸e
+
+=== Delete with subtree on the last item moves the cursor to the previous item
+--- given
+- a
+- b‸
+  - b1
+--- when command delete-with-subtree
+--- then
+- ‸a
+
+=== Delete with subtree on the last item lands on the folded item that hides the previous one
+--- given
+- a ⊟
+  - a1
+- b‸
+--- when command delete-with-subtree
+--- then
+- ‸a ⊟
+  - a1
+
+=== Delete with subtree on the only item leaves an empty item in its shape
+--- given
+* a‸
+  - a1
+--- when command delete-with-subtree
+--- then
+* ‸
+
+=== Delete with subtree from a notes line removes the owning item
+--- given
+- a
+- b
+  no‸te
+- c
+--- when command delete-with-subtree
+--- then
+- a
+- ‸c
+
+=== Delete with subtree on the last child moves the cursor to the parent's next sibling
+--- given
+- p
+  - q
+  - r‸
+- s
+--- when command delete-with-subtree
+--- then
+- p
+  - q
+- ‸s
+
+=== Delete with subtree renumbers an ordered list
+--- given
+1. a
+2. b‸
+3. c
+--- when command delete-with-subtree
+--- then
+1. a
+2. ‸c
+
+=== Delete with subtree with whole items selected removes the run
+--- given
+- a
+⟨- b
+  - b1
+- c⟩
+- d
+--- when command delete-with-subtree
+--- then
+- a
+- ‸d
+
+=== Delete with subtree with the cursor after the task box lands after the next box
+--- given
+- [ ] a‸
+- [x] b
+--- when command delete-with-subtree
+--- then
+- [x] ‸b
+
+=== Backspace at the content start still refuses to eat into a full item
+--- given
+- a
+- ‸b
+--- when key Backspace
+--- then consumed
+- a
+- ‸b

@@ -1,0 +1,84 @@
+=== Toggle done adds a checked box to an item without one
+--- given
+- ab‸c
+--- when command toggle-done
+--- then
+- [x] ab‸c
+
+=== Toggle done unchecks a checked box
+--- given
+- [x] ab‸c
+--- when command toggle-done
+--- then
+- [ ] ab‸c
+
+=== Toggle done checks an unchecked box
+--- given
+- [ ] a‸
+--- when command toggle-done
+--- then
+- [x] a‸
+
+=== Toggle done turns any other state into unchecked
+--- given
+- [-] a‸
+--- when command toggle-done
+--- then
+- [ ] a‸
+
+=== Toggle done works from a notes line and leaves the cursor there
+--- given
+- a
+  no‸te
+--- when command toggle-done
+--- then
+- [x] a
+  no‸te
+
+=== Toggle done leaves the children alone
+--- given
+- a‸
+  - [ ] b
+--- when command toggle-done
+--- then
+- [x] a‸
+  - [ ] b
+
+=== Toggle done on a bare bullet adds the box and a gap
+--- given
+-‸
+--- when command toggle-done
+--- then
+- [x]‸
+
+=== Toggle done on an empty item adds the box with no trailing gap
+--- given
+- ‸
+--- when command toggle-done
+--- then
+- [x]‸
+
+=== Toggle done with whole items selected toggles each on its own
+--- given
+⟨- a
+- [x] b
+- [ ] c⟩
+--- when command toggle-done
+--- then
+⟨- [x] a
+- [ ] b
+- [x] c⟩
+
+=== Toggle done keeps a cursor at the content start on the content
+--- given
+- ‸abc
+--- when command toggle-done
+--- then
+- [x] ‸abc
+
+=== Toggle done on an ordered item keeps the number
+--- given
+2. a‸
+--- when command toggle-done
+--- then
+2. [x] a‸

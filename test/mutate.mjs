@@ -126,6 +126,13 @@ const MUTATIONS = [
     replace: 'tree.attach(created, item.parent, tree.indexOf(item) + 1);',
   },
   {
+    id: 'delete-subtree-children',
+    what: 'delete with subtree taking the children (they stay behind)',
+    file: 'src/operations/deleteSubtree.ts',
+    find: 'for (const item of sel.items) tree.detach(item);',
+    replace: 'for (const item of sel.items) { const kids = [...item.children]; tree.detach(item); kids.forEach((k, i) => { tree.detach(k); tree.attach(k, first.parent, i); }); }',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',

@@ -1,0 +1,112 @@
+=== Duplicate copies the item with its subtree right after it
+--- given
+- a‸
+  - a1
+    - a2
+- b
+--- when command duplicate
+--- then
+- a
+  - a1
+    - a2
+- ‸a
+  - a1
+    - a2
+- b
+
+=== Duplicate keeps the folds on the original and the copy
+--- given
+- a‸ ⊟
+  - a1
+    - a2
+- b
+--- when command duplicate
+--- then
+- a ⊟
+  - a1
+    - a2
+- ‸a ⊟
+  - a1
+    - a2
+- b
+
+=== Duplicate keeps a fold inside the subtree on both
+--- given
+- a‸
+  - a1 ⊟
+    - a2
+--- when command duplicate
+--- then
+- a
+  - a1 ⊟
+    - a2
+- ‸a
+  - a1 ⊟
+    - a2
+
+=== Duplicate copies the notes lines and the task box as they are
+--- given
+- [x] a‸
+  a note
+--- when command duplicate
+--- then
+- [x] a
+  a note
+- [x] ‸a
+  a note
+
+=== Duplicate renumbers an ordered list
+--- given
+1. a
+2. b‸
+3. c
+--- when command duplicate
+--- then
+1. a
+2. b
+3. ‸b
+4. c
+
+=== Duplicate from the middle of the line puts the cursor at the start of the copy
+--- given
+- ab‸c
+--- when command duplicate
+--- then
+- abc
+- ‸abc
+
+=== Duplicate on a nested item keeps the indent
+--- given
+- p
+    - q‸
+- r
+--- when command duplicate
+--- then
+- p
+    - q
+    - ‸q
+- r
+
+=== Duplicate with whole items selected copies the run and selects the copies
+--- given
+⟨- a
+- b
+  - b1⟩
+- c
+--- when command duplicate
+--- then
+- a
+- b
+  - b1
+⟨- a
+- b
+  - b1⟩
+- c
+
+=== Duplicate puts the cursor after the bullet when the box counts as content
+--- given stick=bullet-only
+- [ ] a‸
+--- when command duplicate
+--- then
+- [ ] a
+- ‸[ ] a

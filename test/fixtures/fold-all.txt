@@ -1,0 +1,118 @@
+=== Expand all opens three folded levels in one call
+--- given
+- a‸ ⊟
+  - b ⊟
+    - c ⊟
+      - d
+- e
+--- when command expand-all
+--- then
+- a‸
+  - b
+    - c
+      - d
+- e
+
+=== Collapse all closes three levels in one call
+--- given
+- a‸
+  - b
+    - c
+      - d
+- e
+--- when command collapse-all
+--- then
+- a‸ ⊟
+  - b ⊟
+    - c ⊟
+      - d
+- e
+
+=== Collapse all leaves childless items alone
+--- given
+- a‸
+  - b
+  - c
+    - d
+--- when command collapse-all
+--- then
+- a‸ ⊟
+  - b
+  - c ⊟
+    - d
+
+=== Expand all on an item with one folded grandchild opens it
+--- given
+- a‸
+  - b ⊟
+    - c
+--- when command expand-all
+--- then
+- a‸
+  - b
+    - c
+
+=== Collapse all moves a cursor off a line that is about to be hidden
+--- given
+- a
+  - b‸
+    - c
+--- when command collapse-all
+--- then
+- a
+  - b‸ ⊟
+    - c
+
+=== Collapse all from a notes line moves the cursor to the end of the item's line
+--- given
+- a
+  no‸te
+  - b
+--- when command collapse-all
+--- then
+- a‸ ⊟
+  note
+  - b
+
+=== Collapse all with whole items selected folds every selected subtree
+--- given
+⟨- a
+  - a1
+    - a2
+- b
+  - b1⟩
+- c
+--- when command collapse-all
+--- then
+⟨- a ⊟
+  - a1 ⊟
+    - a2
+- b ⊟
+  - b1⟩
+- c
+
+=== Expand all with whole items selected opens every selected subtree
+--- given
+⟨- a ⊟
+  - a1 ⊟
+    - a2
+- b ⊟
+  - b1⟩
+- c
+--- when command expand-all
+--- then
+⟨- a
+  - a1
+    - a2
+- b
+  - b1⟩
+- c
+
+=== Expand all leaves an already open subtree alone
+--- given
+- a‸
+  - b
+--- when command expand-all
+--- then
+- a‸
+  - b
