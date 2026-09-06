@@ -428,6 +428,11 @@ tagged commit, checks the tag equals the manifest version, attests
 attestations, and publishes the release with those three assets and the
 notes from `docs/releases/<version>.md`.
 
+## Support
+
+This plugin is free. If you want to support us, become a myICOR member at
+https://myicor.com and enjoy everything membership includes.
+
 ## Licence
 
 ICOR for Life Source-Available License (Code), Version 1.0. See `LICENSE`.

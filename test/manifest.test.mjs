@@ -56,7 +56,7 @@ test('one identity across manifest, package and constants', () => {
      The one API that needs 1.13 is getSettingDefinitions(); the display()
      fallback that would have served older apps is deleted, because at
      this floor no supported app calls it. Decision: Larry, 2026-09-06.
-     Marshall to countersign before the tag. */
+     Countersigned: Marshall, 2026-09-06, before the 0.1.0 tag. */
   assert.equal(manifest.minAppVersion, '1.13.0');
   const tab = read('src/settings/SettingsTab.ts').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(tab, /\bdisplay\(/, 'the display() fallback is dead at this floor');
