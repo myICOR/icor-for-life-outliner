@@ -140,6 +140,13 @@ const MUTATIONS = [
     replace: 'copy.folded = false;',
   },
   {
+    id: 'fold-all-depth',
+    what: 'expand and collapse all reaching every level (one level only)',
+    file: 'src/operations/foldAll.ts',
+    find: '  for (const child of item.children) setFolds(child, folded);',
+    replace: '  if (item.parent === null) for (const child of item.children) setFolds(child, folded);',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',
