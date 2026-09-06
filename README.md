@@ -93,13 +93,16 @@ the plugin binds nothing, so nothing collides until you decide.
 | Move the list item down | Mod+Shift+ArrowDown |
 | Delete the list item with its subtree | Mod+Shift+Backspace |
 | Duplicate the list item with its subtree | Mod+Shift+D |
-| Toggle done on the list item | Mod+Enter, or Mod+L. Obsidian's own "Toggle checkbox status" ships with a default hotkey of its own; give this command whichever of the two is free in your vault, or rebind the core one. |
+| Toggle done on the list item | Mod+Shift+L. Two chords that look natural are taken by Obsidian itself: Mod+L is "Toggle checkbox status" and Mod+Enter is "Open link under cursor in new tab" (both read from the 1.13.7 command list). Mod+Shift+L is free. |
 | Move the list item to... | Mod+Shift+M |
 | Insert a list item above | (Mod+Shift+Enter is already the key; the command exists for the toolbar) |
 | Indent, Outdent | (Tab, Shift+Tab are already the keys) |
 
 The suggested fold hotkeys avoid Mod+ArrowUp and Mod+ArrowDown, which on
-macOS move to the start and end of the document.
+macOS move to the start and end of the document. None of the suggestions
+above is a default hotkey of Obsidian 1.13.7; Mod+D (delete paragraph)
+and Mod+Alt+ArrowLeft/Right (navigate back and forward) are, which is
+why duplicate suggests Mod+Shift+D and the folds use Up and Down.
 
 ## Mouse
 
@@ -182,6 +185,24 @@ This plugin's Tab, Shift-Tab, Enter and Mod-Shift-Enter sit above the
 editor's own list handling and below the Live Preview image editor, so
 with an image selected inside an item, Enter still opens the image's
 link editor and Tab still edits its alias.
+
+## Known limits
+
+- **Android composing keyboards.** Enter and Tab run while the keyboard
+  is still composing a word (Gboard composes every word). On desktop the
+  plugin waits for the composition to end; on Android it does not, so
+  the split may land before the suggestion strip commits the word. If
+  the composed word is lost, the fix is to let the editor's own Enter
+  run while composing, on every platform; report it and it ships.
+- **Table cells.** Inside a Live Preview table cell the plugin steps
+  aside entirely: Tab and Enter are the table's, the cursor is not moved,
+  and the commands act on the note, not the cell.
+- **Folding needs "Fold indent".** Fold, unfold, expand all and collapse
+  all go through the editor's own folding, which exists only while
+  Settings, Editor, "Fold indent" is on. Off, the commands show a notice
+  and do nothing.
+- **Same file only.** Move to and drag and drop stay inside the current
+  file; across files, cut and paste.
 
 ## Whitespace is never normalised
 
