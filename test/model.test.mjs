@@ -176,17 +176,39 @@ test('cursor rules: content start per mode, notes lines, folded lines', () => {
   assert.equal(keepCursorOutsideFolded(editor, hidden, { line: 3, ch: 0 }), null);
 });
 
-test('node names: list, other, unknown', () => {
-  assert.equal(classifyNodeNames(['HyperMD-list-line_HyperMD-list-line-1']), 'list');
-  assert.equal(classifyNodeNames(['formatting_formatting-list_formatting-list-ul_list-1']), 'list');
-  assert.equal(classifyNodeNames(['HyperMD-codeblock_HyperMD-codeblock-bg']), 'other');
-  assert.equal(classifyNodeNames(['hmd-codeblock', 'HyperMD-list-line_HyperMD-list-line-1']), 'other', 'a fence inside an item is a fence');
-  assert.equal(classifyNodeNames(['HyperMD-table-row_HyperMD-table-row-1']), 'other');
-  assert.equal(classifyNodeNames(['hmd-frontmatter']), 'other');
-  assert.equal(classifyNodeNames(['HyperMD-quote_HyperMD-quote-1']), 'other');
-  assert.equal(classifyNodeNames(['inline-code']), 'unknown', 'inline code is not a code block');
-  assert.equal(classifyNodeNames([]), 'unknown');
-  assert.equal(classifyNodeNames(['Document']), 'unknown');
+test('node names: list needs the list-line class, a parsed line without it is other, an empty set is unknown', () => {
+  /* Names as Obsidian 1.13.7 builds them: line classes and token classes
+     each sorted and joined with underscores (Flint's table, review of
+     phase 1). One assertion per construct. */
+  const list = 'HyperMD-list-line_HyperMD-list-line-1';
+  assert.equal(classifyNodeNames([list, 'formatting_formatting-list_formatting-list-ul_list-1', 'list-1']), 'list', 'a bullet line');
+  assert.equal(classifyNodeNames(['HyperMD-list-line_HyperMD-list-line-1_HyperMD-task-line', 'formatting_formatting-task_meta']), 'list', 'a task line');
+  assert.equal(classifyNodeNames(['HyperMD-list-line_HyperMD-list-line-2_HyperMD-list-line-nobullet', 'hmd-list-indent_hmd-list-indent-2', 'list-2']), 'list', 'a continuation line');
+  assert.equal(classifyNodeNames([list, 'formatting_formatting-math_formatting-math-begin', 'math', 'formatting_formatting-math_formatting-math-end_math-']), 'list', 'inline math on a bullet line');
+  assert.equal(classifyNodeNames([list, 'inline-code']), 'list', 'inline code on a bullet line');
+  assert.equal(classifyNodeNames(['formatting_formatting-list_formatting-list-ul_list-1', 'list-1']), 'other', 'list tokens without the line class are not a list line');
+  assert.equal(classifyNodeNames(['HyperMD-codeblock_HyperMD-codeblock-begin_HyperMD-codeblock-begin-bg_HyperMD-codeblock-bg', 'formatting_formatting-code-block_hmd-codeblock']), 'other', 'a fence');
+  assert.equal(classifyNodeNames(['HyperMD-codeblock_HyperMD-codeblock-bg', 'hmd-codeblock']), 'other', 'a fenced code body line');
+  assert.equal(classifyNodeNames(['HyperMD-codeblock_HyperMD-codeblock-bg_HyperMD-list-line_HyperMD-list-line-1_HyperMD-list-line-nobullet', 'hmd-codeblock']), 'other', 'a fence inside an item is a fence');
+  assert.equal(classifyNodeNames(['hmd-indented-code']), 'other', 'indented code');
+  assert.equal(classifyNodeNames(['HyperMD-table-2_HyperMD-table-row_HyperMD-table-row-1', 'hmd-table-sep_hmd-table-sep-0']), 'other', 'a table row');
+  assert.equal(classifyNodeNames(['hmd-frontmatter_meta']), 'other', 'frontmatter');
+  assert.equal(classifyNodeNames(['hmd-frontmatter']), 'other', 'a frontmatter body line');
+  assert.equal(classifyNodeNames(['HyperMD-callout_HyperMD-quote_HyperMD-quote-1', 'hmd-callout_quote_quote-1']), 'other', 'a callout head');
+  assert.equal(classifyNodeNames(['HyperMD-quote_HyperMD-quote-1', 'quote_quote-1']), 'other', 'a quote or callout body line');
+  assert.equal(classifyNodeNames(['HyperMD-quote_HyperMD-quote-1', list]), 'other', 'a list inside a quote');
+  assert.equal(classifyNodeNames(['hmd-html-begin_tag']), 'other', 'an HTML block start');
+  assert.equal(classifyNodeNames(['tag', 'attribute', 'string']), 'other', 'an HTML block interior');
+  assert.equal(classifyNodeNames(['hmd-html-end']), 'other', 'an HTML block end');
+  assert.equal(classifyNodeNames(['formatting_formatting-math_formatting-math-begin_math-block']), 'other', 'a math block fence');
+  assert.equal(classifyNodeNames(['math', 'math_keyword']), 'other', 'a math block interior');
+  assert.equal(classifyNodeNames(['formatting_formatting-math_formatting-math-end_math-']), 'other', 'a math block end');
+  assert.equal(classifyNodeNames(['HyperMD-header_HyperMD-header-2', 'formatting_formatting-header_formatting-header-2_header_header-2', 'header_header-2']), 'heading', 'a heading');
+  assert.equal(classifyNodeNames(['HyperMD-header_HyperMD-header-1', 'HyperMD-quote_HyperMD-quote-1', 'header_header-1']), 'other', 'a heading inside a quote');
+  assert.equal(classifyNodeNames(['inline-code']), 'other', 'a paragraph with inline code is parsed and not a list');
+  assert.equal(classifyNodeNames(['em', 'strong']), 'other', 'a paragraph with emphasis');
+  assert.equal(classifyNodeNames([]), 'unknown', 'an unparsed line');
+  assert.equal(classifyNodeNames(['Document']), 'unknown', 'the top node alone says nothing');
 });
 
 test('settings: defaults, normalisation, key gates, one row per key', () => {

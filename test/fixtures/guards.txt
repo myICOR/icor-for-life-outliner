@@ -43,6 +43,74 @@ tags:
 - a
 - b‸
 
+=== A bullet-shaped line inside a math block is not a list
+--- given
+$$
+- x‸
+$$
+--- nodes 0 formatting_formatting-math_formatting-math-begin_math-block
+--- nodes 1 math
+--- nodes 2 formatting_formatting-math_formatting-math-end_math-
+--- when key Tab
+--- then passthrough
+$$
+- x‸
+$$
+
+=== A list line with inline math is a list line
+--- given
+- a
+- $E=mc^2$‸
+--- nodes 0 HyperMD-list-line_HyperMD-list-line-1 formatting_formatting-list_formatting-list-ul_list-1
+--- nodes 1 HyperMD-list-line_HyperMD-list-line-1 formatting_formatting-math_formatting-math-begin math formatting_formatting-math_formatting-math-end_math-
+--- when key Tab
+--- then
+- a
+  - $E=mc^2$‸
+
+=== A bullet-shaped line inside a fence under a list item is not a list
+--- given
+- a
+  ```
+  - x‸
+  ```
+--- nodes 0 HyperMD-list-line_HyperMD-list-line-1 formatting_formatting-list_formatting-list-ul_list-1
+--- nodes 1 HyperMD-codeblock_HyperMD-codeblock-begin_HyperMD-codeblock-begin-bg_HyperMD-codeblock-bg_HyperMD-list-line_HyperMD-list-line-1_HyperMD-list-line-nobullet formatting_formatting-code-block_hmd-codeblock
+--- nodes 2 HyperMD-codeblock_HyperMD-codeblock-bg_HyperMD-list-line_HyperMD-list-line-1_HyperMD-list-line-nobullet hmd-codeblock
+--- nodes 3 HyperMD-codeblock_HyperMD-codeblock-bg_HyperMD-codeblock-end_HyperMD-codeblock-end-bg_HyperMD-list-line_HyperMD-list-line-1_HyperMD-list-line-nobullet formatting_formatting-code-block_hmd-codeblock
+--- when key Tab
+--- then passthrough
+- a
+  ```
+  - x‸
+  ```
+
+=== A bullet-shaped line inside an indented code block is not a list
+--- given
+text
+
+    - item‸
+--- nodes 2 hmd-indented-code
+--- when key Tab
+--- then passthrough
+text
+
+    - item‸
+
+=== A bullet-shaped line inside an HTML block is not a list
+--- given
+<div>
+- item‸
+</div>
+--- nodes 0 hmd-html-begin_tag
+--- nodes 1 tag
+--- nodes 2 hmd-html-end_tag
+--- when key Enter
+--- then passthrough
+<div>
+- item‸
+</div>
+
 === A cursor on a paragraph passes every key to the editor
 --- given
 - a

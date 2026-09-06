@@ -45,9 +45,13 @@ function parseAt(editor: OutlinerEditor, line: number, selection: SelectionRange
   return parsed.ok ? parsed.tree : null;
 }
 
+/* A heading the tree agrees is one (or has not parsed yet); a `#` line
+   inside a fence, a quote or a callout is not a target. */
 function isHeadingLine(editor: OutlinerEditor, line: number): boolean {
   const text = editor.getLine(line);
-  return lineKind(text) === 'other' && headingOf(text) !== null && classifyNodeNames(editor.nodeNamesAt(line)) !== 'other';
+  if (lineKind(text) !== 'other' || headingOf(text) === null) return false;
+  const context = classifyNodeNames(editor.nodeNamesAt(line));
+  return context === 'heading' || context === 'unknown';
 }
 
 /* The lines the selected items and their subtrees occupy. */

@@ -50,10 +50,17 @@ const MUTATIONS = [
   },
   {
     id: 'code-fence-bail',
-    what: 'the code-fence bail in the node classifier',
+    what: 'the code-fence bail in the node classifier (a fence inside an item then reads as a list line)',
     file: 'src/editor/nodes.ts',
     find: "const BAIL_PREFIXES = ['HyperMD-codeblock', 'hmd-codeblock', ",
     replace: 'const BAIL_PREFIXES = [',
+  },
+  {
+    id: 'parsed-non-list-is-other',
+    what: 'a parsed line without the list-line class read as other (read as unknown, so the text parser decides)',
+    file: 'src/editor/nodes.ts',
+    find: "  if (tokens.some((t) => t.startsWith(HEADING_LINE))) return 'heading';\n  return 'other';",
+    replace: "  if (tokens.some((t) => t.startsWith(HEADING_LINE))) return 'heading';\n  return 'unknown';",
   },
   {
     id: 'single-cursor-guard',
