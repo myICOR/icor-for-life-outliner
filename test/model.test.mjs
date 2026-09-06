@@ -275,7 +275,7 @@ test('fold markers: edits per line, the marked lines of a file', async () => {
   assert.deepEqual(markedFoldLines(editor), [0, 4, 5, 6]);
 });
 
-test('paired: an Editor belongs to a document when the line count and the first line agree', async () => {
+test('paired: an Editor belongs to a document when the line count, the first line and the last line agree', async () => {
   const { paired } = await import('./build/pure.mjs');
   const doc = (text) => {
     const lines = text.split('\n');
@@ -283,9 +283,11 @@ test('paired: an Editor belongs to a document when the line count and the first 
   };
   const editor = (text) => {
     const lines = text.split('\n');
-    return { lineCount: () => lines.length, getLine: (n) => lines[n] };
+    return { lineCount: () => lines.length, lastLine: () => lines.length - 1, getLine: (n) => lines[n] };
   };
   assert.equal(paired(editor('- a\n- b'), doc('- a\n- b')), true);
+  assert.equal(paired(editor('x\ny\nz'), doc('x\ny\nw')), false, 'a multi-line cell whose count and first line agree with the note (Flint L4)');
+  assert.equal(paired(editor('x'), doc('y')), false, 'one line, other text');
   assert.equal(paired(editor('- a\n- b'), doc('- a')), false, 'a one-line table cell with the parent note\'s Editor');
   assert.equal(paired(editor('- a\n- b'), doc('- x\n- b')), false, 'same count, other text');
   assert.equal(paired(editor(''), doc('')), true, 'an empty note is paired with its own Editor');

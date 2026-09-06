@@ -7,6 +7,7 @@ import { StateField } from '@codemirror/state';
 
 export interface StubEditor {
   lineCount(): number;
+  lastLine(): number;
   getLine(line: number): string;
 }
 

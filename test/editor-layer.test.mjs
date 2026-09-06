@@ -12,7 +12,7 @@ import { DEFAULT_SETTINGS } from './build/pure.mjs';
 
 function editorOver(text) {
   const doc = Text.of(text.split('\n'));
-  return { lineCount: () => doc.lines, getLine: (n) => doc.line(n + 1).text };
+  return { lineCount: () => doc.lines, lastLine: () => doc.lines - 1, getLine: (n) => doc.line(n + 1).text };
 }
 
 function host(overrides = {}) {
@@ -47,6 +47,8 @@ test('ownEditor: the Editor only when its document is the view\'s document', () 
   assert.equal(ownEditor(cellShape), null, 'a table cell view with the parent note\'s Editor');
   const sameCountOtherText = stateWith('x\ny\nz', editorOver(DOC), []);
   assert.equal(ownEditor(sameCountOtherText), null);
+  const forgedFirstLine = stateWith('- a\n  - b\n- q', editorOver(DOC), []);
+  assert.equal(ownEditor(forgedFirstLine), null, 'a multi-line cell that shares the count and the first line (Flint L4)');
   assert.equal(ownEditor(EditorState.create({ doc: DOC })), null, 'no editorInfoField at all');
 });
 
