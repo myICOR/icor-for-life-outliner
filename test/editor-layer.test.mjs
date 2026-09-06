@@ -61,3 +61,9 @@ test('fold-marker filter: the Editor of another document (a table cell) writes n
   const tr = s.update({ effects: foldEffect.of({ from: 3, to: 8 }) });
   assert.equal(tr.state.doc.toString(), '- a\n  - b');
 });
+
+test('cursor filter: a set transaction (file load, syntax reset) is the editor placing the cursor and is left alone', () => {
+  const s = stateWith(DOC, editorOver(DOC), [cursorStick(host())]);
+  const tr = s.update({ selection: { anchor: 0 }, userEvent: 'set' });
+  assert.equal(tr.state.selection.main.head, 0);
+});

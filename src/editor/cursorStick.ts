@@ -44,7 +44,7 @@ export function cursorStick(host: EditorHost): Extension {
     const mode = host.settings.stickCursor;
     if (mode === 'never') return tr;
     if (!tr.selection && !tr.docChanged) return tr;
-    if (tr.isUserEvent('input')) return tr;
+    if (tr.isUserEvent('input') || tr.isUserEvent('set')) return tr;
     if (!ownEditor(tr.startState)) return tr;
 
     const doc = tr.newDoc;
