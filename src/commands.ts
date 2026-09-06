@@ -1,48 +1,25 @@
-/* The commands, no default hotkeys (the README suggests some), each with a
- * Lucide icon so it can sit on the mobile toolbar. A command is offered
- * only when the cursor is in a list; running one outside does nothing.
- * The view comes from the DOM of the MarkdownView when there is one (the
- * outer editor, even while a table cell is open) and from the registry
+/* The commands, registered from the table in commandTable.ts, each with a
+ * Lucide icon so it can sit on the mobile toolbar and a default hotkey the
+ * user can change under Settings, Hotkeys. A command is offered only when
+ * the cursor is in a list; run from its hotkey outside a list it does
+ * what the editor does with that chord (handBack.ts) or nothing. The view
+ * comes from the DOM of the MarkdownView when there is one (the outer
+ * editor, even while a table cell is open) and from the registry
  * otherwise; either way it must be the Editor's own. */
 import { EditorView } from '@codemirror/view';
 import { MarkdownView, Notice } from 'obsidian';
-import type { Editor, MarkdownFileInfo, Plugin } from 'obsidian';
+import type { Editor, Hotkey as ObsidianHotkey, MarkdownFileInfo, Plugin } from 'obsidian';
 import { runAction } from './actions';
-import type { ActionId } from './actions';
+import { COMMANDS, MOVE_TO_COMMAND } from './commandTable';
+import type { Hotkey } from './commandTable';
 import { CmEditorAdapter } from './editor/adapter';
+import { handBack } from './editor/handBack';
 import type { EditorHost } from './editor/host';
 import { paired } from './editor/pairing';
 import { viewFor } from './editor/registry';
 import { MoveToModal } from './editor/moveToModal';
 import { findListBounds } from './model';
 import { moveTargets, runMoveTo } from './moveTo';
-
-export interface CommandSpec {
-  id: string;
-  name: string;
-  icon: string;
-  action: ActionId;
-}
-
-export const COMMANDS: readonly CommandSpec[] = [
-  { id: 'fold', name: 'Fold the list item', icon: 'chevrons-down-up', action: 'fold' },
-  { id: 'unfold', name: 'Unfold the list item', icon: 'chevrons-up-down', action: 'unfold' },
-  { id: 'move-up', name: 'Move the list item up', icon: 'arrow-up', action: 'move-up' },
-  { id: 'move-down', name: 'Move the list item down', icon: 'arrow-down', action: 'move-down' },
-  { id: 'indent', name: 'Indent the list item', icon: 'indent', action: 'indent' },
-  { id: 'outdent', name: 'Outdent the list item', icon: 'outdent', action: 'outdent' },
-  { id: 'insert-above', name: 'Insert a list item above', icon: 'list-plus', action: 'insert-above' },
-  { id: 'delete-with-subtree', name: 'Delete the list item with its subtree', icon: 'trash', action: 'delete-with-subtree' },
-  { id: 'duplicate', name: 'Duplicate the list item with its subtree', icon: 'copy', action: 'duplicate' },
-  { id: 'expand-all', name: 'Expand all under the list item', icon: 'unfold-vertical', action: 'expand-all' },
-  { id: 'collapse-all', name: 'Collapse all under the list item', icon: 'fold-vertical', action: 'collapse-all' },
-  { id: 'toggle-done', name: 'Toggle done on the list item', icon: 'check', action: 'toggle-done' },
-];
-
-/* The one command with a picker: the targets come from the pure layer, the
-   modal shows them, and the move runs only if the document is still the
-   one the picker was opened on. */
-export const MOVE_TO_COMMAND = { id: 'move-to', name: 'Move the list item to...', icon: 'corner-down-right' } as const;
 
 const NOTHING_TO_MOVE_TO = 'No heading or list item to move to in this file.';
 const CHANGED_MEANWHILE = 'The note changed while the picker was open; nothing was moved.';
@@ -55,12 +32,18 @@ function resolveView(editor: Editor, ctx: MarkdownView | MarkdownFileInfo): Edit
   return viewFor(editor);
 }
 
+/* A fresh copy for Obsidian, which may keep and mutate what it is handed. */
+function defaultHotkeys(hotkey: Hotkey): ObsidianHotkey[] {
+  return [{ modifiers: [...hotkey.modifiers], key: hotkey.key }];
+}
+
 export function registerCommands(plugin: Plugin, host: EditorHost): void {
   for (const spec of COMMANDS) {
     plugin.addCommand({
       id: spec.id,
       name: spec.name,
       icon: spec.icon,
+      hotkeys: defaultHotkeys(spec.hotkey),
       editorCheckCallback: (checking, editor, ctx) => {
         const view = resolveView(editor, ctx);
         if (!view) return false;
@@ -68,6 +51,7 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
         if (checking) return findListBounds(adapter, editor.getCursor().line) !== null;
         const outcome = runAction(adapter, host.settings, spec.action);
         host.log(`${spec.id}: ${outcome.reason}`);
+        if (!outcome.consume && spec.handBack) handBack(spec.handBack, editor, view);
         return true;
       },
     });
@@ -77,6 +61,7 @@ export function registerCommands(plugin: Plugin, host: EditorHost): void {
     id: MOVE_TO_COMMAND.id,
     name: MOVE_TO_COMMAND.name,
     icon: MOVE_TO_COMMAND.icon,
+    hotkeys: defaultHotkeys(MOVE_TO_COMMAND.hotkey),
     editorCheckCallback: (checking, editor, ctx) => {
       const view = resolveView(editor, ctx);
       if (!view) return false;
