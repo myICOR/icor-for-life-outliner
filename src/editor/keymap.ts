@@ -4,7 +4,8 @@
  * the Live Preview image editor's Enter and Tab (also Prec.high, registered
  * earlier, and returning false unless an image is selected). Each of them
  * asks the syntax tree first and steps aside on anything that is not a
- * list line: a table, a code block, a callout, frontmatter, a widget. The
+ * list line: a table, a code block, a callout, a quote, an HTML block, a
+ * math block, frontmatter, a widget. The
  * rest (Backspace, Delete, Mod-Backspace on macOS, ArrowLeft, Mod-a,
  * Shift-Up and Shift-Down) run at the default precedence. Every handler
  * returns false while an input method is composing on desktop, so a
