@@ -1,0 +1,130 @@
+=== Two cursors pass every key to the editor
+--- given
+- a
+- b‸
+- c‸
+--- when key Tab
+--- then passthrough
+- a
+- b‸
+- c‸
+
+=== A bullet-shaped line inside frontmatter is not a list
+--- given
+---
+tags:
+- a‸
+---
+--- nodes 2 hmd-frontmatter
+--- when key Tab
+--- then passthrough
+---
+tags:
+- a‸
+---
+
+=== A bullet-shaped line inside a table is not a list
+--- given
+- a
+- b‸
+--- nodes 1 HyperMD-table-row_HyperMD-table-row-1
+--- when key Tab
+--- then passthrough
+- a
+- b‸
+
+=== A list inside a callout is left to the editor
+--- given
+- a
+- b‸
+--- nodes 1 HyperMD-quote_HyperMD-quote-1 HyperMD-list-line_HyperMD-list-line-1
+--- when key Enter
+--- then passthrough
+- a
+- b‸
+
+=== A cursor on a paragraph passes every key to the editor
+--- given
+- a
+para‸graph
+--- when key Enter
+--- then passthrough
+- a
+para‸graph
+
+=== A cursor on the blank line of a loose list passes to the editor
+--- given
+- a
+‸
+- b
+--- when key Enter
+--- then passthrough
+- a
+‸
+- b
+
+=== Move up refuses a list that mixes tabs and spaces
+--- given
+- a
+	- a1
+- b
+  - b1‸
+--- when command move-up
+--- then passthrough
+- a
+	- a1
+- b
+  - b1‸
+
+=== Indented lines with no bullet above them are not a list
+--- given
+    code‸
+- a
+--- when key Tab
+--- then passthrough
+    code‸
+- a
+
+=== The list ends at a paragraph that follows it
+--- given
+- a
+- b‸
+paragraph
+- c
+--- when command move-down
+--- then consumed
+- a
+- b‸
+paragraph
+- c
+
+=== A list under a heading starts at its first bullet
+--- given
+# Title
+- a
+- b‸
+--- when command move-up
+--- then
+# Title
+- b‸
+- a
+
+=== Two cursors pass Backspace to the editor
+--- given
+-
+- ‸b
+- ‸c
+--- when key Backspace
+--- then passthrough
+-
+- ‸b
+- ‸c
+
+=== A bullet with no gap and no content is still an item
+--- given
+- a
+-‸
+--- when key Tab
+--- then
+- a
+  -‸

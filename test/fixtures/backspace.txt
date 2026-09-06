@@ -1,0 +1,128 @@
+=== Backspace merges two empty items
+--- given
+- 
+- ‸
+--- when key Backspace
+--- then
+- ‸
+
+=== Backspace merges into an empty item at the same level
+--- given
+- 
+- ‸b
+--- when key Backspace
+--- then
+- ‸b
+
+=== Backspace on an empty child merges it into its parent
+--- given
+- a
+  - ‸
+--- when key Backspace
+--- then
+- a‸
+
+=== Backspace between two items with content swallows the key
+--- given
+- a
+- ‸b
+--- when key Backspace
+--- then consumed
+- a
+- ‸b
+
+=== Backspace on an empty child moves its children up to the parent
+--- given
+- a
+  - ‸
+    - x
+--- when key Backspace
+--- then
+- a‸
+  - x
+
+=== Backspace at the start of a notes line joins the line above
+--- given
+- a
+  ‸note
+--- when key Backspace
+--- then
+- a‸note
+
+=== Backspace on the first item of a list swallows the key
+--- given
+- ‸a
+--- when key Backspace
+--- then consumed
+- ‸a
+
+=== Backspace on an empty first item passes to the editor
+--- given
+- ‸
+--- when key Backspace
+--- then passthrough
+- ‸
+
+=== Backspace away from the content start passes to the editor
+--- given
+- ab‸
+--- when key Backspace
+--- then passthrough
+- ab‸
+
+=== Backspace passes to the editor when the cursor is not kept in the content
+--- given stick=never
+-
+- ‸b
+--- when key Backspace
+--- then passthrough
+-
+- ‸b
+
+=== Backspace never merges into a hidden line
+--- given
+- a ⊟
+  -
+- ‸
+--- when key Backspace
+--- then consumed
+- a ⊟
+  -
+- ‸
+
+=== Backspace carries the notes lines of the merged item
+--- given
+- 
+- ‸b
+  note
+--- when key Backspace
+--- then
+- ‸b
+  note
+
+=== Backspace on an empty item under a parent with content and siblings
+--- given
+- a
+  - ‸
+  - c
+--- when key Backspace
+--- then
+- a‸
+  - c
+
+=== Backspace at the content start of a task item swallows the key
+--- given
+- [ ] a
+- [ ] ‸b
+--- when key Backspace
+--- then consumed
+- [ ] a
+- [ ] ‸b
+
+=== Backspace into a bare dash gives the dash its gap back
+--- given
+-
+- ‸b
+--- when key Backspace
+--- then
+- ‸b

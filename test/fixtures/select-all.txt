@@ -1,0 +1,96 @@
+=== Mod-a first selects the item's content
+--- given
+- abc‸
+  - d
+--- when key Mod-a
+--- then
+- ⟨abc⟩
+  - d
+
+=== Mod-a then selects the item with its subtree
+--- given
+- ⟨abc⟩
+  - d
+--- when key Mod-a
+--- then
+- ⟨abc
+  - d⟩
+
+=== Mod-a then selects the whole list
+--- given
+- x
+- ⟨abc
+  - d⟩
+--- when key Mod-a
+--- then
+⟨- x
+- abc
+  - d⟩
+
+=== Mod-a on the whole list passes to the editor
+--- given
+⟨- x
+- abc
+  - d⟩
+--- when key Mod-a
+--- then passthrough
+⟨- x
+- abc
+  - d⟩
+
+=== Mod-a skips the subtree rung on an item without children
+--- given
+- x
+- ⟨abc⟩
+--- when key Mod-a
+--- then
+⟨- x
+- abc⟩
+
+=== Mod-a content rung covers the notes lines
+--- given
+- ab‸c
+  note
+--- when key Mod-a
+--- then
+- ⟨abc
+  note⟩
+
+=== Mod-a with the anchor outside the list passes to the editor
+--- given
+a paragraph
+⟨- a⟩
+--- when key Mod-a
+--- then passthrough
+a paragraph
+⟨- a⟩
+
+=== Mod-a passes to the editor when switched off
+--- given selectall=off
+- abc‸
+--- when key Mod-a
+--- then passthrough
+- abc‸
+
+=== Mod-a content starts after the task box
+--- given
+- [ ] ab‸
+--- when key Mod-a
+--- then
+- [ ] ⟨ab⟩
+
+=== Mod-a content starts after the bullet when the box counts as content
+--- given stick=bullet-only
+- [ ] ab‸
+--- when key Mod-a
+--- then
+- ⟨[ ] ab⟩
+
+=== Mod-a from a partial selection inside the item selects the content first
+--- given
+- a⟨b⟩c
+  - d
+--- when key Mod-a
+--- then
+- ⟨abc⟩
+  - d

@@ -1,0 +1,46 @@
+=== Fold folds the item under the cursor
+--- given
+- a‸
+  - b
+--- when command fold
+--- then consumed
+- a‸ ⊟
+  - b
+
+=== Fold on an item without children does nothing
+--- given
+- a‸
+- b
+--- when command fold
+--- then consumed
+- a‸
+- b
+
+=== Unfold unfolds the item under the cursor
+--- given
+- a‸ ⊟
+  - b
+--- when command unfold
+--- then consumed
+- a‸
+  - b
+
+=== Unfold on an unfolded item does nothing
+--- given
+- a‸
+  - b
+--- when command unfold
+--- then consumed
+- a‸
+  - b
+
+=== Fold works from a notes line of the item
+--- given
+- a
+  no‸te
+  - b
+--- when command fold
+--- then consumed
+- a ⊟
+  no‸te
+  - b

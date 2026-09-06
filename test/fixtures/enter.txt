@@ -1,0 +1,216 @@
+=== Enter at the end of an item adds a sibling below it
+--- given
+- a‸
+--- when key Enter
+--- then
+- a
+- ‸
+
+=== Enter in the middle of a line moves the tail to the new item
+--- given
+- ab‸cd
+--- when key Enter
+--- then
+- ab
+- ‸cd
+
+=== Enter at the end of an item with children makes the new item the first child
+--- given
+- a‸
+  - b
+--- when key Enter
+--- then
+- a
+  - ‸
+  - b
+
+=== Enter mid-line on an item with children hands the children to the new item
+--- given
+- a‸b
+  - c
+--- when key Enter
+--- then
+- a
+- ‸b
+  - c
+
+=== Enter at the end of a folded item adds a sibling after the folded subtree
+--- given
+- a‸ ⊟
+  - b
+--- when key Enter
+--- then
+- a ⊟
+  - b
+- ‸
+
+=== Enter mid-line on a folded item keeps the children folded under the head
+--- given
+- a‸b ⊟
+  - c
+--- when key Enter
+--- then
+- a ⊟
+  - c
+- ‸b
+
+=== Enter carries a task box over, unchecked
+--- given
+- [x] a‸
+--- when key Enter
+--- then
+- [x] a
+- [ ] ‸
+
+=== Enter carries a task box onto a new first child
+--- given
+- [ ] a‸
+  - [ ] b
+--- when key Enter
+--- then
+- [ ] a
+  - [ ] ‸
+  - [ ] b
+
+=== Enter renumbers an ordered list
+--- given
+1. a‸
+2. b
+--- when key Enter
+--- then
+1. a
+2. ‸
+3. b
+
+=== Enter makes a numbered first child and renumbers the old one
+--- given
+1. a‸
+   1. b
+--- when key Enter
+--- then
+1. a
+   1. ‸
+   2. b
+
+=== Enter on an empty nested item outdents it
+--- given
+- a
+  - ‸
+--- when key Enter
+--- then
+- a
+- ‸
+
+=== Enter on an empty nested item at the third level outdents one level
+--- given
+- a
+  - b
+    - ‸
+--- when key Enter
+--- then
+- a
+  - b
+  - ‸
+
+=== Enter on the only item, empty, passes to the editor
+--- given
+- ‸
+--- when key Enter
+--- then passthrough
+- ‸
+
+=== Enter on an empty top-level item among others passes to the editor
+--- given
+- a
+- ‸
+--- when key Enter
+--- then passthrough
+- a
+- ‸
+
+=== Enter with the cursor inside the bullet passes to the editor
+--- given stick=never
+-‸ a
+--- when key Enter
+--- then passthrough
+-‸ a
+
+=== Enter with a selection passes to the editor
+--- given
+- ⟨a⟩b
+--- when key Enter
+--- then passthrough
+- ⟨a⟩b
+
+=== Enter inside a fenced code block passes to the editor
+--- given
+- a
+  ```
+  code‸
+  ```
+--- nodes 2 HyperMD-codeblock_HyperMD-codeblock-bg
+--- when key Enter
+--- then passthrough
+- a
+  ```
+  code‸
+  ```
+
+=== Enter on a notes line splits it and moves the later notes along
+--- given
+- a
+  no‸te
+  more
+--- when key Enter
+--- then
+- a
+  no
+- ‸te
+  more
+
+=== Enter at the end of the last notes line adds a sibling
+--- given
+- a
+  note‸
+--- when key Enter
+--- then
+- a
+  note
+- ‸
+
+=== Enter at the end of the bullet line moves the notes to the new item
+--- given
+- a‸
+  note
+--- when key Enter
+--- then
+- a
+- ‸
+  note
+
+=== Enter passes to the editor when the Enter behaviour is switched off
+--- given enter=off
+- a‸
+  - b
+--- when key Enter
+--- then passthrough
+- a‸
+  - b
+
+=== Enter keeps the sibling's bullet style
+--- given
+* a‸
+--- when key Enter
+--- then
+* a
+* ‸
+
+=== Enter at the end of a tab-indented child adds a sibling with the same indent
+--- given unit=tab
+- a
+	- b‸
+--- when key Enter
+--- then
+- a
+	- b
+	- ‸

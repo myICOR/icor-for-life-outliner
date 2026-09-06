@@ -1,0 +1,71 @@
+=== ArrowLeft at the content start jumps to the end of the item above
+--- given
+- abc
+- ‸d
+--- when key ArrowLeft
+--- then
+- abc‸
+- d
+
+=== ArrowLeft above a folded item lands on the folded line, not inside it
+--- given
+- a ⊟
+  - b
+- ‸c
+--- when key ArrowLeft
+--- then
+- a‸ ⊟
+  - b
+- c
+
+=== ArrowLeft at the start of a notes line goes to the end of the line above
+--- given
+- a
+  ‸note
+--- when key ArrowLeft
+--- then
+- a‸
+  note
+
+=== ArrowLeft away from the content start passes to the editor
+--- given
+- a‸b
+--- when key ArrowLeft
+--- then passthrough
+- a‸b
+
+=== ArrowLeft on the first item swallows the key
+--- given
+- ‸a
+--- when key ArrowLeft
+--- then consumed
+- ‸a
+
+=== ArrowLeft after the bullet only jumps from before the box
+--- given stick=bullet-only
+- a
+- ‸[ ] b
+--- when key ArrowLeft
+--- then
+- a‸
+- [ ] b
+
+=== ArrowLeft lands after the previous item's notes line
+--- given
+- a
+  note
+- ‸b
+--- when key ArrowLeft
+--- then
+- a
+  note‸
+- b
+
+=== ArrowLeft passes to the editor when the cursor is not kept in the content
+--- given stick=never
+- a
+- ‸b
+--- when key ArrowLeft
+--- then passthrough
+- a
+- ‸b

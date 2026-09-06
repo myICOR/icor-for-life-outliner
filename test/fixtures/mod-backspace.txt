@@ -1,0 +1,50 @@
+=== Mod-Backspace deletes back to the content start and keeps the box
+--- given
+- [ ] abc‸
+--- when key Mod-Backspace
+--- then
+- [ ] ‸
+
+=== Mod-Backspace at the content start swallows the key
+--- given
+- [ ] ‸abc
+--- when key Mod-Backspace
+--- then consumed
+- [ ] ‸abc
+
+=== Mod-Backspace on a notes line stops at its indent
+--- given
+- a
+  no‸te
+--- when key Mod-Backspace
+--- then
+- a
+  ‸te
+
+=== Mod-Backspace after the bullet only treats the box as content
+--- given stick=bullet-only
+- [ ] ab‸
+--- when key Mod-Backspace
+--- then
+- ‸
+
+=== Mod-Backspace with a selection passes to the editor
+--- given
+- ⟨ab⟩c
+--- when key Mod-Backspace
+--- then passthrough
+- ⟨ab⟩c
+
+=== Mod-Backspace in the middle of the content keeps the tail
+--- given
+- abc‸def
+--- when key Mod-Backspace
+--- then
+- ‸def
+
+=== Mod-Backspace passes to the editor when the cursor is not kept in the content
+--- given stick=never
+- abc‸
+--- when key Mod-Backspace
+--- then passthrough
+- abc‸

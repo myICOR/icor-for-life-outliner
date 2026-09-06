@@ -1,0 +1,172 @@
+=== Move up swaps with the previous sibling and carries the subtree
+--- given
+- a
+  - a1
+- b‸
+  - b1
+--- when command move-up
+--- then
+- b‸
+  - b1
+- a
+  - a1
+
+=== Move up from the first position joins the previous parent as its last child
+--- given
+- p
+  - q
+- r
+  - s‸
+--- when command move-up
+--- then
+- p
+  - q
+  - s‸
+- r
+
+=== Move up at the top of the list does nothing and swallows the key
+--- given
+- a‸
+- b
+--- when command move-up
+--- then consumed
+- a‸
+- b
+
+=== Move down swaps with the next sibling and carries the subtree
+--- given
+- a‸
+  - a1
+- b
+  - b1
+--- when command move-down
+--- then
+- b
+  - b1
+- a‸
+  - a1
+
+=== Move down from the last position joins the next parent as its first child
+--- given
+- p
+  - q‸
+- r
+  - s
+--- when command move-down
+--- then
+- p
+- r
+  - q‸
+  - s
+
+=== Move down at the bottom of the list does nothing and swallows the key
+--- given
+- a
+- b‸
+--- when command move-down
+--- then consumed
+- a
+- b‸
+
+=== Move up keeps the folds of the moved item and of its neighbour
+--- given
+- a ⊟
+  - a1
+- b‸ ⊟
+  - b1
+--- when command move-up
+--- then
+- b‸ ⊟
+  - b1
+- a ⊟
+  - a1
+
+=== Move down keeps the folds of the moved item and of its neighbour
+--- given
+- a‸ ⊟
+  - a1
+- b ⊟
+  - b1
+--- when command move-down
+--- then
+- b ⊟
+  - b1
+- a‸ ⊟
+  - a1
+
+=== Move up into a folded uncle unfolds it
+--- given
+- p ⊟
+  - q
+- r
+  - s‸
+--- when command move-up
+--- then
+- p
+  - q
+  - s‸
+- r
+
+=== Move up renumbers an ordered list
+--- given
+1. a
+2. b‸
+--- when command move-up
+--- then
+1. b‸
+2. a
+
+=== Move up into the previous parent takes that parent's indent step
+--- given
+- p
+    - q
+- r
+  - s‸
+--- when command move-up
+--- then
+- p
+    - q
+    - s‸
+- r
+
+=== Move down keeps the cursor on its character
+--- given
+- ab‸c
+- d
+--- when command move-down
+--- then
+- d
+- ab‸c
+
+=== Move up carries the notes lines
+--- given
+- a
+- b‸
+  a note
+--- when command move-up
+--- then
+- b‸
+  a note
+- a
+
+=== Move up on a first child with no previous parent swallows the key
+--- given
+- p
+  - q‸
+--- when command move-up
+--- then consumed
+- p
+  - q‸
+
+=== Move down from a first child past the parent's siblings
+--- given
+- p
+  - q‸
+  - r
+- s
+--- when command move-down
+--- then
+- p
+  - r
+  - q‸
+- s

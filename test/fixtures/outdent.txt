@@ -1,0 +1,96 @@
+=== Shift-Tab moves the item and its children to right after the parent
+--- given
+- a
+  - b‸
+    - c
+  - d
+--- when key Shift-Tab
+--- then
+- a
+  - d
+- b‸
+  - c
+
+=== Shift-Tab at the top level does nothing and swallows the key
+--- given
+- a‸
+- b
+--- when key Shift-Tab
+--- then consumed
+- a‸
+- b
+
+=== Shift-Tab keeps the moved item's fold
+--- given
+- a
+  - b‸ ⊟
+    - c
+--- when key Shift-Tab
+--- then
+- a
+- b‸ ⊟
+  - c
+
+=== Shift-Tab renumbers both ordered groups
+--- given
+1. a
+   1. b
+   2. c‸
+   3. d
+2. e
+--- when key Shift-Tab
+--- then
+1. a
+   1. b
+   2. d
+2. c‸
+3. e
+
+=== Shift-Tab in a tab list keeps the child one tab under the item
+--- given unit=tab
+- a
+	- b‸
+		- c
+--- when key Shift-Tab
+--- then
+- a
+- b‸
+	- c
+
+=== Shift-Tab keeps a selection inside the item on its characters
+--- given
+- a
+  - ⟨bb⟩b
+--- when key Shift-Tab
+--- then
+- a
+- ⟨bb⟩b
+
+=== Shift-Tab carries the notes lines one level out
+--- given
+- a
+  - b‸
+    a note
+--- when key Shift-Tab
+--- then
+- a
+- b‸
+  a note
+
+=== Shift-Tab passes to the editor when the Tab behaviour is switched off
+--- given tab=off
+- a
+  - b‸
+--- when key Shift-Tab
+--- then passthrough
+- a
+  - b‸
+
+=== The outdent command works without the Tab setting
+--- given tab=off
+- a
+  - b‸
+--- when command outdent
+--- then
+- a
+- b‸

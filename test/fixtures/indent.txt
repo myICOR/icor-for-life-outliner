@@ -1,0 +1,200 @@
+=== Tab moves the item and its children under the previous sibling
+--- given
+- a
+- b‸
+  - c
+--- when key Tab
+--- then
+- a
+  - b‸
+    - c
+
+=== Tab on the first item of a list does nothing and swallows the key
+--- given
+- a‸
+- b
+--- when key Tab
+--- then consumed
+- a‸
+- b
+
+=== Tab on a first child does nothing and swallows the key
+--- given
+- a
+  - b‸
+  - c
+--- when key Tab
+--- then consumed
+- a
+  - b‸
+  - c
+
+=== Tab takes the indent step from the previous sibling's first child
+--- given
+- a
+    - a1
+- b‸
+--- when key Tab
+--- then
+- a
+    - a1
+    - b‸
+
+=== Tab takes the indent step from the item itself when the sibling has no children
+--- given
+- p
+    - a
+    - b‸
+--- when key Tab
+--- then
+- p
+    - a
+        - b‸
+
+=== Tab takes the indent step from elsewhere in the list before the editor's unit
+--- given unit=2
+- a
+- b‸
+- c
+    - c1
+--- when key Tab
+--- then
+- a
+    - b‸
+- c
+    - c1
+
+=== Tab falls back to the editor's indent unit in a flat list (tab)
+--- given unit=tab
+- a
+- b‸
+--- when key Tab
+--- then
+- a
+	- b‸
+
+=== Tab falls back to the editor's indent unit in a flat list (four spaces)
+--- given unit=4
+- a
+- b‸
+--- when key Tab
+--- then
+- a
+    - b‸
+
+=== Tab renumbers both ordered groups
+--- given
+1. a
+2. b‸
+3. c
+--- when key Tab
+--- then
+1. a
+  1. b‸
+2. c
+
+=== Tab keeps a selection inside the item on its characters
+--- given
+- a
+- ⟨bb⟩b
+--- when key Tab
+--- then
+- a
+  - ⟨bb⟩b
+
+=== Tab with a selection across two items passes to the editor
+--- given
+- a
+- ⟨b
+- c⟩
+--- when key Tab
+--- then passthrough
+- a
+- ⟨b
+- c⟩
+
+=== Tab into a folded sibling unfolds it so the item stays visible
+--- given
+- a ⊟
+  - a1
+- b‸
+--- when key Tab
+--- then
+- a
+  - a1
+  - b‸
+
+=== Tab keeps the moved item's own fold
+--- given
+- a
+- b‸ ⊟
+  - c
+--- when key Tab
+--- then
+- a
+  - b‸ ⊟
+    - c
+
+=== Tab carries the item's notes lines
+--- given
+- a
+- b‸
+  a note
+--- when key Tab
+--- then
+- a
+  - b‸
+    a note
+
+=== Tab on a notes line indents the item that owns it
+--- given
+- a
+- b
+  a no‸te
+--- when key Tab
+--- then
+- a
+  - b
+    a no‸te
+
+=== Tab refuses a list that mixes tabs and spaces
+--- given
+- a
+	- a1
+- b
+  - b1‸
+--- when key Tab
+--- then passthrough
+- a
+	- a1
+- b
+  - b1‸
+
+=== Tab passes to the editor when the Tab behaviour is switched off
+--- given tab=off
+- a
+- b‸
+--- when key Tab
+--- then passthrough
+- a
+- b‸
+
+=== Tab moves a task item and its box together
+--- given
+- [ ] a
+- [x] b‸
+--- when key Tab
+--- then
+- [ ] a
+  - [x] b‸
+
+=== Tab in a loose list treats the blank line as part of the list
+--- given
+- a
+
+- b‸
+--- when key Tab
+--- then
+- a
+
+  - b‸
