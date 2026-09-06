@@ -82,6 +82,16 @@ refuses `Prec.highest`. Every handler returns false unless the view is
 its Editor's own (`src/editor/pairing.ts`, `src/editor/registry.ts`), so
 a Live Preview table cell keeps its own keys.
 
+**It registers a keyboard scheme.** `src/editor/schemeKeymap.ts` binds
+the active scheme's chords (`src/editor/schemes.ts`, Tana or Heptabase,
+or nothing) at the default precedence; each runs the operation the
+command of the same id runs and returns false outside a list, so the
+key reaches the editor. A change of scheme swaps the extension through
+`Workspace.updateOptions()`. No chord is one of Obsidian's own default
+hotkeys, except two that the table names as taken (Mod+Enter, Mod+D)
+with a free second chord each; `test/schemes.test.mjs` checks every
+chord against the 1.13.7 tables in `test/lib/obsidian-1.13.7-keys.mjs`.
+
 **It registers two transaction filters.** `src/editor/cursorStick.ts`
 moves a cursor that landed inside a bullet or a folded block, inside the
 same transaction. `src/editor/foldMarkers.ts` is the marker filter
@@ -103,15 +113,13 @@ refuses `addEventListener` and the global `document`.
 file, built from the editor's lines (`src/moveTo.ts`) and nothing else.
 
 **It registers thirteen commands.** `src/commands.ts`, from the table in
-`src/commandTable.ts`: bare ids, sentence case, an icon each, one default
-hotkey each. `test/manifest.test.mjs` pins all four and checks every
-chord against Obsidian 1.13.7's own default hotkeys and its editor
-keymap, both carried in the test as data; the six chords the editor also
-binds hand the editor's own behaviour back outside a list
-(`src/editor/handBack.ts`, public API only: `Editor.exec`,
-`Editor.setSelection`, `EditorView.moveVertically`).
+`src/commandTable.ts`: bare ids, sentence case, an icon each, no default
+hotkeys (`test/manifest.test.mjs` pins all four). An Obsidian hotkey is
+captured at window level before any editor key and fires in every
+editor, list or not; the schemes above are editor keys instead, and a
+hotkey the user sets on a command runs first.
 
-**It stores eight settings.** `data.json` holds the eight keys listed in
+**It stores nine settings.** `data.json` holds the nine keys listed in
 `src/settings/model.ts`, normalised on every read. No document text is
 ever written there.
 

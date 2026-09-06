@@ -3,10 +3,11 @@
 Lists that behave like an outline. Tab, Shift-Tab, Enter, Backspace,
 Delete and the arrow keys know that a bullet has children, the cursor stays
 in the content, Shift-Up and Shift-Down select whole items, and select-all
-climbs from the item to the list. Thirteen commands carry the same
-behaviour to the command palette and the mobile toolbar, each with a
-default hotkey you can change, and on desktop a bullet can be dragged
-with everything under it.
+climbs from the item to the list. A keyboard scheme, Tana or Heptabase,
+folds, moves, deletes, duplicates and marks an item from the keyboard;
+thirteen commands carry the same behaviour to the command palette and
+the mobile toolbar; and on desktop a bullet can be dragged with
+everything under it.
 
 The plugin changes how the keys behave and, apart from a drop line while
 you drag, nothing about how a list looks. Bullets, indent guides and fold
@@ -41,11 +42,14 @@ notice and do nothing):
 
 - **The chevron in the gutter** next to a bullet that has children, on
   hover. Obsidian draws it; the plugin does not touch it.
-- **The Fold hotkey**, Mod+Alt+ArrowUp on the item (Mod+Alt+ArrowDown
-  unfolds). It works from any line of the item, notes lines included.
-- **Collapse all under the list item**, Mod+Alt+Shift+ArrowUp, folds the
-  item and every level under it in one go; Expand all,
-  Mod+Alt+Shift+ArrowDown, opens them all.
+- **The Fold key**, Mod+ArrowUp on the item in both keyboard schemes
+  (Mod+ArrowDown unfolds). It works from any line of the item, notes
+  lines included; outside a list the same key still goes to the start of
+  the note.
+- **Collapse all under the list item**, Control+Cmd+ArrowUp on macOS and
+  Ctrl+Alt+ArrowUp on Windows and Linux, folds the item and every level
+  under it in one go; Expand all, the same with ArrowDown, opens them
+  all.
 - **A whole-item selection** (Shift-Down, Shift-Up) and then Fold,
   Collapse all or Expand all works on every selected item at once.
 
@@ -81,9 +85,11 @@ where the editor already removes the bullet.
 
 ## Commands
 
-All under "ICOR for Life - Outliner" in the command palette. Each has a
-default hotkey (the table under "Default hotkeys") and an icon, so it can
-be added to the mobile toolbar. Every command that moves or changes an item works on the item
+All under "ICOR for Life - Outliner" in the command palette. None has a
+default hotkey: the keyboard scheme below binds ten of them as editor
+keys that work inside a list only, and a hotkey you set on any command
+under Settings, Hotkeys runs first, in every note. Each has an icon, so
+it can be added to the mobile toolbar. Every command that moves or changes an item works on the item
 under the cursor, from any column of any of its lines, and on every item
 of a whole-item selection.
 
@@ -103,47 +109,93 @@ of a whole-item selection.
 | Toggle done on the list item | Adds `[x]` to an item without a task box; swaps `[ ]` and `[x]` otherwise, and turns any other state (`[-]`, `[/]`) into `[ ]`. The cursor keeps its character. Children are not touched. |
 | Move the list item to... | Opens a picker of every heading and list item in the current file, indented by depth. The item with its subtree becomes the last child of the chosen item, or the last top-level item of the list at the end of the chosen heading's section (a list is started there when the section has none). Folds travel, the cursor lands on the moved item. Same file only; across files, cut and paste. A target inside the moved item is refused. |
 
-### Default hotkeys
+## Keyboard schemes
 
-Each command ships with a default hotkey. Change any of them under
-Settings, Hotkeys; search for "ICOR for Life - Outliner". The plugin's
-settings page lists the same table under "Keyboard shortcuts". Mod is
-Cmd on macOS and Ctrl on Windows and Linux.
+Under Settings, "Keyboard scheme": **Tana** (the default), **Heptabase**,
+or **Obsidian hotkeys only**. A scheme is a set of editor keys, not
+Obsidian hotkeys: each one works inside a list and steps aside outside
+one, so Mod+ArrowUp folds an item and still goes to the start of the
+note anywhere else. Switching the scheme takes effect in every open
+editor at once. Mod is Cmd on macOS and Ctrl on Windows and Linux.
 
-| Command | Default | Outside a list |
+Any of these can be overridden per command under Settings, Hotkeys;
+search for "ICOR for Life - Outliner". A hotkey set there runs first, in
+every note, list or not. The plugin's settings page lists the active
+scheme's chords under "Keyboard shortcuts".
+
+The tables are Pax's recommended schemes (2026-09-06), as shipped.
+
+### Tana
+
+| Action | macOS | Windows, Linux |
 | --- | --- | --- |
-| Fold the list item | Mod+Alt+ArrowUp | The editor adds a cursor on the line above, as it does without this plugin. |
-| Unfold the list item | Mod+Alt+ArrowDown | The editor adds a cursor on the line below. |
-| Collapse all under the list item | Mod+Alt+Shift+ArrowUp | Nothing. |
-| Expand all under the list item | Mod+Alt+Shift+ArrowDown | Nothing. |
-| Move the list item up | Mod+Shift+ArrowUp | On macOS the editor selects to the start of the note, as it does without this plugin. Windows and Linux bind nothing here. |
-| Move the list item down | Mod+Shift+ArrowDown | On macOS the editor selects to the end of the note. |
-| Indent the list item | Mod+] | The editor indents the line, as it does without this plugin. |
-| Outdent the list item | Mod+[ | The editor outdents the line. |
-| Insert a list item above | Mod+Shift+A | Nothing. |
-| Delete the list item with its subtree | Mod+Shift+Backspace | Nothing. |
-| Duplicate the list item with its subtree | Mod+Shift+D | Nothing. |
-| Toggle done on the list item | Mod+Shift+L | Nothing. |
-| Move the list item to... | Mod+Shift+M | Nothing. |
+| Fold the list item | Cmd+ArrowUp | Ctrl+ArrowUp |
+| Unfold the list item | Cmd+ArrowDown | Ctrl+ArrowDown |
+| Collapse all under the list item | Control+Cmd+ArrowUp | Ctrl+Alt+ArrowUp |
+| Expand all under the list item | Control+Cmd+ArrowDown | Ctrl+Alt+ArrowDown |
+| Move the list item up | Cmd+Shift+ArrowUp | Ctrl+Shift+ArrowUp |
+| Move the list item down | Cmd+Shift+ArrowDown | Ctrl+Shift+ArrowDown |
+| Delete the list item with its subtree | Cmd+Shift+Backspace | Ctrl+Shift+Backspace |
+| Duplicate the list item with its subtree | Cmd+Shift+D | Ctrl+Shift+D |
+| Toggle done on the list item | Cmd+Enter, and Cmd+Shift+L | Ctrl+Enter, and Ctrl+Shift+L |
+| Move the list item to... | Cmd+Shift+M | Ctrl+Shift+M |
 
-How the chords were chosen, and checked. Obsidian's hotkey layer runs
-before the editor and takes a bound chord whether or not the command did
-anything, so a default hotkey never falls through to the editor's own
-keys. Every chord above was checked against two lists read from the
-Obsidian 1.13.7 bundle and pinned in `test/manifest.test.mjs`: the app's
-own default hotkeys (none of ours is one; Mod+L is "Toggle checkbox
-status", Mod+D is "Delete paragraph", Mod+Enter opens the link under the
-cursor in a new tab, Mod+Alt+ArrowLeft and ArrowRight go back and
-forward, which is why toggle done, duplicate and the folds sit where they
-do), and the editor's own keymap. Six chords are editor keys too, and in
-those six cases the command does the editor's job itself when the cursor
-is not in a list, listed in the third column, so nothing is lost outside
-a list. Mod+ArrowUp and Mod+ArrowDown are not used on purpose: on macOS
-they go to the start and end of the note, and that is not worth losing
-inside a list. Tab, Shift-Tab and Mod-Shift-Enter stay keys, not
-hotkeys, so the toggles under Settings keep governing them; the indent,
-outdent and insert-above commands have chords of their own for the
-palette, the toolbar and the hotkey page.
+### Heptabase
+
+The same as Tana except duplicate, which is Heptabase's own Cmd+D /
+Ctrl+D. Heptabase documents few list chords: it has no separate fold and
+unfold (one toggle on Mod+Enter does both there, and marks a task), no
+collapse all or expand all, no insert above, no keyboard whole-item
+selection and no same-file move, so the Heptabase scheme borrows Tana's
+chord for each of those. Delete with subtree borrows Tana's
+Backspace-based chord too, because Heptabase's Delete key behaviour on
+a block with children is undocumented and a MacBook keyboard has no
+forward Delete without Fn.
+
+| Action | macOS | Windows, Linux |
+| --- | --- | --- |
+| Fold the list item | Cmd+ArrowUp | Ctrl+ArrowUp |
+| Unfold the list item | Cmd+ArrowDown | Ctrl+ArrowDown |
+| Collapse all under the list item | Control+Cmd+ArrowUp | Ctrl+Alt+ArrowUp |
+| Expand all under the list item | Control+Cmd+ArrowDown | Ctrl+Alt+ArrowDown |
+| Move the list item up | Cmd+Shift+ArrowUp | Ctrl+Shift+ArrowUp |
+| Move the list item down | Cmd+Shift+ArrowDown | Ctrl+Shift+ArrowDown |
+| Delete the list item with its subtree | Cmd+Shift+Backspace | Ctrl+Shift+Backspace |
+| Duplicate the list item with its subtree | Cmd+D, and Cmd+Shift+D | Ctrl+D, and Ctrl+Shift+D |
+| Toggle done on the list item | Cmd+Enter, and Cmd+Shift+L | Ctrl+Enter, and Ctrl+Shift+L |
+| Move the list item to... | Cmd+Shift+M | Ctrl+Shift+M |
+
+### The same in every scheme
+
+Tab, Shift-Tab, Enter, Mod-Shift-Enter (insert above), Backspace,
+Delete, Mod-Backspace, ArrowLeft, Mod-A, Shift-Up and Shift-Down are
+the editing keys of "The keys" above; they do not change with the
+scheme, and the toggles under Settings switch them. Zoom, go to parent,
+next and previous sibling and first and last item are unbound in both
+schemes: neither tool documents a chord for them, and none is invented.
+
+### Two chords Obsidian takes first
+
+Mod+Enter is Obsidian's own "Open link under cursor in new tab" and
+Mod+D its "Delete paragraph", both default hotkeys of Obsidian 1.13.7.
+An Obsidian hotkey is captured at window level before any editor key
+and consumes the chord whether or not its command did anything, so
+inside a list Mod+Enter reaches this plugin only after you remove that
+hotkey under Settings, Hotkeys (search "Open link under cursor in new
+tab"), and Mod+D in the Heptabase scheme only after you remove "Delete
+paragraph". Until then the second chord in the table does the same:
+Mod+Shift+L toggles done, Mod+Shift+D duplicates. The settings page
+says so on the two rows.
+
+Every scheme chord is checked in `test/schemes.test.mjs` against the
+1.13.7 default hotkey table and the editor's own keymap, both pinned as
+data in `test/lib/obsidian-1.13.7-keys.mjs`: no chord is a core default
+except the two above, which must name their taker and carry a free
+second chord; and the chords the editor itself binds (Mod+ArrowUp and
+ArrowDown, with Shift, on macOS; Ctrl+Alt+ArrowUp and ArrowDown, the
+editor's add-cursor keys, on Windows and Linux; Mod+Enter, the editor's
+blank-line key, everywhere) are exactly the pinned set, shadowed inside
+a list and untouched outside one.
 
 ## Mouse
 
@@ -186,14 +238,17 @@ the soft keyboard as it does on desktop.
 | Remember folds in the file | Off | The `%% fold %%` marker, below. |
 | Debug logging | Off | One line per key press in the developer console: the action and why it did or did not run. Never the text. |
 
-Two more groups on the page carry no switch: "Keyboard shortcuts" lists
-the thirteen commands with their default hotkeys, printed the way the
-Hotkeys page prints them, with the one sentence on where to change them;
-"Editing keys" lists the keys that are not commands (Tab, Shift-Tab,
-Enter, Mod-Shift-Enter, Backspace, Delete, Mod-Backspace on macOS,
-ArrowLeft, Mod-A, Shift-Up and Shift-Down) with the toggle that switches
-each. Commands are never switched off by a setting. Every row appears in
-Obsidian's settings search.
+| Keyboard scheme | Tana | Which chords fold, move, delete, duplicate and mark an item inside a list: Tana, Heptabase, or none ("Obsidian hotkeys only"). See "Keyboard schemes". |
+
+Two blocks on the page carry no switch: under "Keyboard shortcuts", one
+read-only row per command shows what the active scheme binds, printed
+the way the Hotkeys page prints a chord, regenerated when the scheme
+changes, behind one sentence on overriding any of them under Settings,
+Hotkeys; "Editing keys" lists the keys that are not commands (Tab,
+Shift-Tab, Enter, Mod-Shift-Enter, Backspace, Delete, Mod-Backspace on
+macOS, ArrowLeft, Mod-A, Shift-Up and Shift-Down) with the toggle that
+switches each. Commands are never switched off by a setting. Every row
+appears in Obsidian's settings search.
 
 ## Folds that survive a reinstall
 
@@ -240,10 +295,9 @@ way on another. Three things to know:
 If another plugin in your vault also binds Tab and Enter inside lists,
 disable one of them. Both bind at a high precedence and whichever loaded
 first wins, without a message. Custom hotkeys set on that other plugin's
-commands do not carry over; set them again on the commands above. This
-plugin's default hotkeys are its own and may collide with hotkeys you
-set on another plugin; Obsidian's Hotkeys page shows every collision, and
-either side can be changed there.
+commands do not carry over; set them again on the commands above. The
+keyboard scheme's keys are editor keys, so a hotkey you set on any
+plugin's command under Settings, Hotkeys runs before them.
 
 This plugin's Tab, Shift-Tab, Enter and Mod-Shift-Enter sit above the
 editor's own list handling and below the Live Preview image editor, so
@@ -267,6 +321,17 @@ link editor and Tab still edits its alias.
   and do nothing.
 - **Same file only.** Move to and drag and drop stay inside the current
   file; across files, cut and paste.
+- **Control+Cmd+ArrowUp and ArrowDown on macOS.** The collapse all and
+  expand all chords of both schemes. macOS uses Control+ArrowUp and
+  ArrowDown without Cmd for Mission Control and App Windows, so the
+  chords should be free, but this is unverified on a machine whose
+  Mission Control keys were changed in System Settings; if the system
+  takes them, rebind the two commands under Settings, Hotkeys.
+- **Ctrl+Alt+ArrowUp and ArrowDown on Linux.** Some desktops use them to
+  switch workspaces; where the desktop takes them, the same rebinding
+  applies.
+- **Mod+Enter and Mod+D.** Obsidian's own hotkeys take them first; see
+  "Two chords Obsidian takes first" under "Keyboard schemes".
 
 ## Whitespace is never normalised
 
@@ -292,10 +357,11 @@ rules the directory runs, plus the CSS scanner) and the test suite. The
 suite has three parts: the pure-layer tests (`test/model.test.mjs`), the
 fixture corpus (`test/fixtures/*.txt`, one document, one key or command,
 the document afterwards, run through a fake editor that counts edits),
-and the repo gates (`test/manifest.test.mjs`, `test/hygiene.test.mjs`).
-The manifest gate carries the 1.13.7 default hotkey list and the editor's
-own keymap as data, and refuses a command chord that collides with the
-first or overlaps the second without a hand-back.
+the scheme gates (`test/schemes.test.mjs` over the tables, the scheme
+cases in `test/lib/scheme-cases.mjs` driving the keymap through a stub
+Editor), and the repo gates (`test/manifest.test.mjs`,
+`test/hygiene.test.mjs`). The 1.13.7 default hotkey table and the
+editor's own keymap live as data in `test/lib/obsidian-1.13.7-keys.mjs`.
 
 A fixture is `--- given`, the document with `‸` for the cursor, `⟨` `⟩`
 for a selection and ` ⊟` for a folded line; `--- when key <Key>`,
@@ -313,8 +379,9 @@ head, Tab and move over every selected item, insert-above's position,
 delete-with-subtree's children, duplicate's folds, expand and collapse
 depth, toggle-done's swap, move-to's last-child attach and cross-list
 line shift, the fold marker write and strip, the drop's child placement,
-its step order and its inside refusal, and the one-edit promise. A guard
-no case catches fails the run. The record for the current version is
+its step order and its inside refusal, the one-edit promise, and, on the
+editor layer, a scheme key returning false outside a list. A guard no
+case catches fails the run. The record for the current version is
 `docs/mutation-runs.md`.
 
 ### Layout
@@ -326,8 +393,8 @@ no case catches fails the run. The record for the current version is
 | `src/apply/` | The editor interface, the line diff, the applicator (one edit, fold reconcile, selection; `applyChanges` for a two-span move). | model |
 | `src/actions.ts`, `src/moveTo.ts` | The doors: guards, parse, operate, fold-marker sync, apply. `runAction` for keys and commands, `runDrop` for a drop, `runMoveTo` and `moveTargets` for the picker. | all of the above |
 | `src/editor/` | The CodeMirror adapter, the syntax probe, the keymaps, the cursor filter, the view registry, the fold-marker filter, the drag plugin, the move-to modal. | obsidian, @codemirror |
-| `src/commandTable.ts` | The thirteen commands with their default hotkeys, the editing keys, the chord printer. | actions (types) |
-| `src/commands.ts`, `src/editor/handBack.ts`, `src/settings/`, `src/main.ts` | The plugin surface. | obsidian |
+| `src/commandTable.ts`, `src/editor/schemes.ts` | The thirteen commands, the editing keys, the chord printer; the two keyboard schemes as tables. | actions (types) |
+| `src/commands.ts`, `src/editor/schemeKeymap.ts`, `src/settings/`, `src/main.ts` | The plugin surface. | obsidian |
 
 ### Where the next features go
 
@@ -345,10 +412,14 @@ no case catches fails the run. The record for the current version is
 - **A new setting.** One key in `src/settings/model.ts`, one row in
   `src/settings/definitions.ts` (`desktopOnly` hides it on mobile); the
   settings test refuses anything else.
-- **A new command or hotkey.** One row in `src/commandTable.ts`; the
-  registration, the settings page and the hotkey gate read it from there.
-  A chord the editor also binds needs a `handBack` and a case in
-  `src/editor/handBack.ts`.
+- **A new command.** One row in `src/commandTable.ts`; the registration
+  and the settings page read it from there.
+- **A new keyboard scheme, or a changed chord.** One table in
+  `src/editor/schemes.ts` (a chord per action, macOS and the rest), a
+  name in `SCHEME_NAMES`, the id in `SCHEME_IDS`; the keymap, the
+  settings dropdown and the read-only rows follow. `test/schemes.test.mjs`
+  refuses a chord that is a core default unless the table names the
+  taking command and a free second chord.
 
 A release is a bare version tag (`0.1.0`, no `v`) pushed to `main`.
 `.github/workflows/release.yml` runs the gate and the mutation runs on the
