@@ -4,8 +4,8 @@
  *   --- given [unit=tab|2|4] [stick=never|bullet-only|bullet-and-checkbox] [tab=off] [enter=off] [selectall=off] [select=off]
  *   lines of the document, with markers
  *   --- nodes <line> <node name> [<node name> ...]        (optional, repeatable)
- *   --- when key <Tab|Shift-Tab|Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
- *   --- when command <indent|outdent|move-up|move-down|fold|unfold>
+ *   --- when key <Tab|Shift-Tab|Enter|Mod-Shift-Enter|Backspace|Delete|Mod-Backspace|ArrowLeft|Mod-a|Shift-Down|Shift-Up>
+ *   --- when command <indent|outdent|move-up|move-down|fold|unfold|insert-above|delete-with-subtree|duplicate|expand-all|collapse-all|toggle-done>
  *   --- then [passthrough|consumed]
  *   lines of the expected document, with markers
  *
@@ -38,9 +38,10 @@ const KEY_ACTIONS = {
   'Mod-a': 'select-all',
   'Shift-Down': 'select-down',
   'Shift-Up': 'select-up',
+  'Mod-Shift-Enter': 'insert-above',
 };
 
-const COMMANDS = new Set(['indent', 'outdent', 'move-up', 'move-down', 'fold', 'unfold']);
+const COMMANDS = new Set(['indent', 'outdent', 'move-up', 'move-down', 'fold', 'unfold', 'insert-above', 'delete-with-subtree', 'duplicate', 'expand-all', 'collapse-all', 'toggle-done']);
 
 export function parseState(block) {
   const lines = [];

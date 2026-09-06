@@ -10,8 +10,13 @@ import { classifyNodeNames } from './editor/nodes';
 import { parseList, printTree } from './model';
 import type { ListTree } from './model';
 import {
+  collapseAll,
   createItem,
   deleteTillLineStart,
+  deleteWithSubtree,
+  duplicate,
+  expandAll,
+  insertAbove,
   deleteTillNextStart,
   deleteTillPreviousEnd,
   indent,
@@ -23,13 +28,14 @@ import {
   selectAll,
   selectDown,
   selectUp,
+  toggleDone,
 } from './operations';
 import type { OpContext, OpResult } from './operations';
 import { CONSUMED } from './operations';
 import { keyEnabled } from './settings/model';
 import type { KeyAction, OutlinerSettings } from './settings/model';
 
-export type ActionId = KeyAction | 'move-up' | 'move-down' | 'fold' | 'unfold';
+export type ActionId = KeyAction | 'move-up' | 'move-down' | 'fold' | 'unfold' | 'delete-with-subtree' | 'duplicate' | 'expand-all' | 'collapse-all' | 'toggle-done';
 
 export interface ActionOutcome {
   consume: boolean;
@@ -66,6 +72,18 @@ function operate(action: ActionId, tree: ListTree, ctx: OpContext, editor: Outli
       return selectDown(tree);
     case 'select-up':
       return selectUp(tree);
+    case 'insert-above':
+      return insertAbove(tree);
+    case 'delete-with-subtree':
+      return deleteWithSubtree(tree, ctx);
+    case 'duplicate':
+      return duplicate(tree, ctx);
+    case 'expand-all':
+      return expandAll(tree);
+    case 'collapse-all':
+      return collapseAll(tree);
+    case 'toggle-done':
+      return toggleDone(tree);
     case 'move-up':
       return moveUp(tree);
     case 'move-down':

@@ -1,0 +1,83 @@
+=== Mod-Shift-Enter inserts an empty sibling above and moves the cursor into it
+--- given
+- a
+- b‸c
+- d
+--- when key Mod-Shift-Enter
+--- then
+- a
+- ‸
+- bc
+- d
+
+=== Mod-Shift-Enter above a nested item keeps its indent and bullet
+--- given
+- a
+    * b‸
+--- when key Mod-Shift-Enter
+--- then
+- a
+    * ‸
+    * b
+
+=== Mod-Shift-Enter leaves the item's children with the item
+--- given
+- a‸
+  - a1
+--- when key Mod-Shift-Enter
+--- then
+- ‸
+- a
+  - a1
+
+=== Mod-Shift-Enter carries a task box over, unchecked
+--- given
+- [x] a‸
+--- when key Mod-Shift-Enter
+--- then
+- [ ] ‸
+- [x] a
+
+=== Mod-Shift-Enter renumbers an ordered list
+--- given
+1. a
+2. b‸
+--- when key Mod-Shift-Enter
+--- then
+1. a
+2. ‸
+3. b
+
+=== Mod-Shift-Enter from a notes line inserts above the owning item
+--- given
+- a
+  no‸te
+--- when key Mod-Shift-Enter
+--- then
+- ‸
+- a
+  note
+
+=== Mod-Shift-Enter with a selection passes to the editor
+--- given
+- ⟨a⟩
+--- when key Mod-Shift-Enter
+--- then passthrough
+- ⟨a⟩
+
+=== Mod-Shift-Enter passes to the editor when the Enter behaviour is off
+--- given enter=off
+- a‸
+--- when key Mod-Shift-Enter
+--- then passthrough
+- a‸
+
+=== Insert above as a command works on a folded item
+--- given
+- a‸ ⊟
+  - a1
+--- when command insert-above
+--- then
+- ‸
+- a ⊟
+  - a1

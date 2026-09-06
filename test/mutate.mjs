@@ -119,6 +119,13 @@ const MUTATIONS = [
     replace: 'for (const item of sel.items.slice(-1)) tree.detach(item);',
   },
   {
+    id: 'insert-above-position',
+    what: 'the new item going above (goes below)',
+    file: 'src/operations/insertAbove.ts',
+    find: 'tree.attach(created, item.parent, tree.indexOf(item));',
+    replace: 'tree.attach(created, item.parent, tree.indexOf(item) + 1);',
+  },
+  {
     id: 'one-replace',
     what: 'the diff (every changed line replaced one by one)',
     file: 'src/apply/apply.ts',

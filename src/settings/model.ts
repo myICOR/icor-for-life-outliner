@@ -40,7 +40,7 @@ export function normaliseSettings(raw: unknown): OutlinerSettings {
   };
 }
 
-export type KeyAction = 'indent' | 'outdent' | 'enter' | 'backspace' | 'delete' | 'delete-to-line-start' | 'arrow-left' | 'select-all' | 'select-down' | 'select-up';
+export type KeyAction = 'indent' | 'outdent' | 'enter' | 'backspace' | 'delete' | 'delete-to-line-start' | 'arrow-left' | 'select-all' | 'select-down' | 'select-up' | 'insert-above';
 
 /* Is this key's behaviour switched on? Commands are never gated. */
 export function keyEnabled(settings: OutlinerSettings, action: KeyAction): boolean {
@@ -49,6 +49,7 @@ export function keyEnabled(settings: OutlinerSettings, action: KeyAction): boole
     case 'outdent':
       return settings.betterTab;
     case 'enter':
+    case 'insert-above':
       return settings.betterEnter;
     case 'select-all':
       return settings.selectAll;

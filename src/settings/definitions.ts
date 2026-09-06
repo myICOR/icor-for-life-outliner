@@ -51,7 +51,7 @@ export const SETTING_ROWS: readonly SettingRow[] = [
     group: 'Keys',
     key: 'betterEnter',
     name: 'Enter knows about children',
-    desc: 'Enter at the end of an item with children starts a new first child; an empty nested item is outdented instead of doubled.',
+    desc: 'Enter at the end of an item with children starts a new first child; an empty nested item is outdented instead of doubled. Mod-Shift-Enter inserts an empty item above.',
   },
   {
     type: 'toggle',

@@ -100,10 +100,10 @@ test('the built plugin bundles nothing but its own code', () => {
   assert.ok(main.length < 40000, `main.js is ${main.length} bytes; expected a small plugin`);
 });
 
-test('Prec.highest is used for Tab, Shift-Tab and Enter only', () => {
+test('Prec.highest is used for Tab, Shift-Tab and the Enter family only', () => {
   const src = read('src/editor/keymap.ts');
   const highest = src.slice(src.indexOf('Prec.highest('), src.indexOf('),\n    keymap.of(['));
   const keys = [...highest.matchAll(/key: '([^']+)'/g)].map((m) => m[1]);
-  assert.deepEqual(keys, ['Tab', 'Shift-Tab', 'Enter']);
+  assert.deepEqual(keys, ['Tab', 'Shift-Tab', 'Enter', 'Mod-Shift-Enter']);
   assert.equal((src.match(/Prec\.highest/g) ?? []).length, 1);
 });

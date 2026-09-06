@@ -1,4 +1,4 @@
-/* The keys. Tab, Shift-Tab and Enter must run before the editor's own list
+/* The keys. Tab, Shift-Tab, Enter and Mod-Shift-Enter must run before the editor's own list
  * handling, so they sit at the highest precedence, and each of them asks
  * the syntax tree first and steps aside on anything that is not a list
  * line: a table, a code block, a callout, frontmatter, a widget. The rest
@@ -39,6 +39,7 @@ export function outlinerKeymaps(host: EditorHost): Extension[] {
         { key: 'Tab', run: handler(host, 'indent', true) },
         { key: 'Shift-Tab', run: handler(host, 'outdent', true) },
         { key: 'Enter', run: handler(host, 'enter', true) },
+        { key: 'Mod-Shift-Enter', run: handler(host, 'insert-above', true) },
       ]),
     ),
     keymap.of([

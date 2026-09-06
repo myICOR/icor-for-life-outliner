@@ -1,4 +1,4 @@
-/* Six commands, no default hotkeys (the README suggests some), each with a
+/* The commands, no default hotkeys (the README suggests some), each with a
  * Lucide icon so it can sit on the mobile toolbar. A command is offered
  * only when the cursor is in a list; running one outside does nothing. */
 import { EditorView } from '@codemirror/view';
@@ -25,6 +25,12 @@ export const COMMANDS: readonly CommandSpec[] = [
   { id: 'move-down', name: 'Move the list item down', icon: 'arrow-down', action: 'move-down' },
   { id: 'indent', name: 'Indent the list item', icon: 'indent', action: 'indent' },
   { id: 'outdent', name: 'Outdent the list item', icon: 'outdent', action: 'outdent' },
+  { id: 'insert-above', name: 'Insert a list item above', icon: 'list-plus', action: 'insert-above' },
+  { id: 'delete-with-subtree', name: 'Delete the list item with its subtree', icon: 'trash', action: 'delete-with-subtree' },
+  { id: 'duplicate', name: 'Duplicate the list item with its subtree', icon: 'copy', action: 'duplicate' },
+  { id: 'expand-all', name: 'Expand all under the list item', icon: 'unfold-vertical', action: 'expand-all' },
+  { id: 'collapse-all', name: 'Collapse all under the list item', icon: 'fold-vertical', action: 'collapse-all' },
+  { id: 'toggle-done', name: 'Toggle done on the list item', icon: 'check', action: 'toggle-done' },
 ];
 
 function resolveView(editor: Editor, ctx: MarkdownView | MarkdownFileInfo): EditorView | null {
