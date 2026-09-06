@@ -61,9 +61,8 @@ export class ListItem {
 
   /* The last item of this subtree in document order. */
   lastDescendant(): ListItem {
-    let item: ListItem = this;
-    while (item.children.length > 0) item = item.children[item.children.length - 1] as ListItem;
-    return item;
+    const last = this.children[this.children.length - 1];
+    return last ? last.lastDescendant() : this;
   }
 
   /* Lines this item and everything under it occupy. */

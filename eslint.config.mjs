@@ -31,11 +31,14 @@ export default defineConfig([
   {
     /* The settings tab implements the 1.13 declarative API and keeps
        `display()` ON PURPOSE as the fallback, which is the case its
-       deprecation notice carves out. Inline disables are forbidden by the
-       recommended config, so the exemption lives here, scoped to one file. */
+       deprecation notice carves out; the directory's own rule reports the
+       fallback as bypassed at this floor, which it is, and that is the
+       point of a fallback. Inline disables are forbidden by the recommended
+       config, so both exemptions live here, scoped to one file. */
     files: ['src/settings/SettingsTab.ts'],
     rules: {
       '@typescript-eslint/no-deprecated': 'off',
+      'obsidianmd/settings-tab/no-deprecated-display': 'off',
     },
   },
   {
