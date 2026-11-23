@@ -1,6 +1,6 @@
 /* The keyboard schemes as data: one table per scheme, action to chord,
  * one chord for macOS and one for Windows and Linux. The tables are Pax's
- * "Recommended scheme tables" (03 WiP, 2026-09-06) as shipped; the
+ * "Recommended scheme tables" (2026-09-06) as shipped; the
  * Heptabase scheme borrows Tana's chord wherever Heptabase documents
  * none, and today the two differ at one action only (duplicate). They
  * stay two named tables so they can diverge as Tom refines them.
