@@ -1,6 +1,6 @@
 # Security Policy
 
-ICOR for Life - Outliner changes how a few keys behave inside a list in the
+ICOR Outliner changes how a few keys behave inside a list in the
 editor. It edits the note you are typing in, through the editor's own API,
 and it does nothing else: it reads no file, opens no connection, spawns no
 process, touches no clipboard. That is the whole capability, and this

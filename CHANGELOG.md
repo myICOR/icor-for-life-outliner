@@ -4,6 +4,11 @@ All notable changes to ICOR for Life - Outliner.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.2] - 2026-11-23
+
+### Changed
+- The display name is now ICOR Outliner (it was ICOR for Life - Outliner). The plugin id stays `icor-for-life-outliner`, so installed vaults, settings and hotkeys carry on unchanged.
+
 ## [0.2.1] - 2026-11-23
 
 ### Changed

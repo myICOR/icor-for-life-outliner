@@ -1,4 +1,4 @@
-/* ICOR for Life - Outliner. Lists that behave like an outline: the keys
+/* ICOR Outliner. Lists that behave like an outline: the keys
  * around a bullet know about the item's children, the cursor stays in the
  * content, a keyboard scheme (Tana or Heptabase) folds, moves, deletes,
  * duplicates and marks an item from the keyboard, and thirteen commands
