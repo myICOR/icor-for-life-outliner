@@ -1,4 +1,4 @@
-/* Build ICOR for Life - Outliner into a single CommonJS main.js for Obsidian.
+/* Build ICOR Outliner into a single CommonJS main.js for Obsidian.
  *
  * The plugin is an editor extension. Everything it needs at runtime comes
  * from the host: `obsidian` and the three CodeMirror packages Obsidian
