@@ -39,6 +39,20 @@ test('no em dash or en dash anywhere in the repo text', () => {
   assert.deepEqual(hits, [], `dashes at:\n  ${hits.join('\n  ')}`);
 });
 
+test('ICOR for Life 3.0 folders: no old folder name, no work-in-progress folder, no "room"', () => {
+  /* 3.0 renumbered the vault's folders and grouped them by stage; nothing
+     here may name a folder by its 2.x name, the retired 03 WiP or 06 AI Team,
+     or call a folder a room. The changelog is history and is not scanned. */
+  const forbidden = [/00 Daily Scratchpad/, /04 Inner World/, /06 Outer World/, /05 Assets/, /07 Databases/, /02 Planner/, /\bWiP\b/, /06 AI Team/, /\brooms?\b/i];
+  const hits = [];
+  for (const f of textFiles) {
+    for (const [i, line] of readFileSync(f, 'utf8').split('\n').entries()) {
+      for (const re of forbidden) if (re.test(line)) hits.push(`${f.slice(repo.length + 1)}:${i + 1} ${re}`);
+    }
+  }
+  assert.deepEqual(hits, [], `old folder words at:\n  ${hits.join('\n  ')}`);
+});
+
 test('the clean room: no upstream names, no foreign class prefix, no attribution', () => {
   const forbidden = [/vslinko/i, /slinko/i, /obsidian-outliner/i, /outliner-plugin-/, /inspired by/i, /based on/i, /original author/i];
   for (const f of textFiles) {

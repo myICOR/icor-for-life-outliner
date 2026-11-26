@@ -240,7 +240,7 @@ test('settings: the scheme dropdown, the read-only rows for the active scheme, t
       const info = rows.slice(1);
       assert.ok(info.every((r) => r.type === 'info'));
       assert.equal(info.length, 1 + SCHEME_ACTIONS.length + keyCommands.length, 'one row per command plus the intro');
-      assert.match(info[0].desc, /Settings, Hotkeys; search for ICOR for Life - Outliner\./);
+      assert.match(info[0].desc, /Settings, Hotkeys; search for ICOR Outliner\./);
       assert.match(info[0].desc, /runs first, in every note/);
       assert.deepEqual(info.slice(1).map((r) => r.name), [...SCHEME_ACTIONS, ...keyCommands].map(commandName));
       for (const [i, action] of SCHEME_ACTIONS.entries()) {

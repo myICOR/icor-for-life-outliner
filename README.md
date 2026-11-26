@@ -1,4 +1,4 @@
-# ICOR for Life - Outliner
+# ICOR Outliner
 
 **Move a thought without retyping it.**
 

@@ -120,7 +120,7 @@ export const SETTING_ROWS: readonly ControlRow[] = [
   },
 ];
 
-const OVERRIDE = 'Any of these can be overridden per command under Settings, Hotkeys; search for ICOR for Life - Outliner. A hotkey set there runs first, in every note, list or not.';
+const OVERRIDE = 'Any of these can be overridden per command under Settings, Hotkeys; search for ICOR Outliner. A hotkey set there runs first, in every note, list or not.';
 const SCHEME_INTRO = `The active scheme binds the chords below inside a list only; outside a list each key keeps its usual meaning. ${OVERRIDE}`;
 const NO_SCHEME_INTRO = `No scheme is active, so the commands have no keys until you bind them. ${OVERRIDE}`;
 const NOT_BOUND = 'Not bound by a scheme.';

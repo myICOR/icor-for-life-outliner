@@ -1,5 +1,5 @@
 export const PLUGIN_ID = 'icor-for-life-outliner';
-export const PLUGIN_NAME = 'ICOR for Life - Outliner';
+export const PLUGIN_NAME = 'ICOR Outliner';
 /* Every DOM class this plugin ever adds starts with this. */
 export const CLASS_PREFIX = 'icor-outliner-';
 /* The INKLINE handshake: a surface marked with this attribute is owned by
